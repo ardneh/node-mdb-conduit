@@ -7,18 +7,32 @@
 		"cflags!": [ "-fno-exceptions" ],
 		"cflags_cc!": [ "-fno-exceptions" ],
 		"conditions": [
-		["OS=='mac'", {
-			"xcode_settings": {
-				"GCC_ENABLE_CPP_EXCEPTIONS": "YES"
-			}
-		}]],
+			["OS=='mac'", {
+				"xcode_settings": {
+					"GCC_ENABLE_CPP_EXCEPTIONS": "YES"
+				}
+			}]
+		],
 		"include_dirs": [
 			"/Users/cezell/src/mongo_next/src/src/third_party",
 			"/Users/cezell/src/mongo_next/src",
 			"/Users/cezell/src/mongo_next/build/darwin/normal"
 		],
 		"libraries": [
-			"-lcoredb", "-L/Users/cezell/src/mongo_next/build/darwin/normal/mongo"
+			"-lbson",
+			"-lcoredb",
+			"-lfoundation",
+			"-lstringutils",
+			"-lplatform",
+			"-lbase",
+			"-llogger",
+			"-lboost_system",
+			"-lboost_thread",
+			"-L/Users/cezell/src/mongo_next/build/darwin/normal/mongo",
+			"-L/Users/cezell/src/mongo_next/build/darwin/normal/mongo/base",
+			"-L/Users/cezell/src/mongo_next/build/darwin/normal/mongo/platform",
+			"-L/Users/cezell/src/mongo_next/build/darwin/normal/mongo/logger",
+			"-L/Users/cezell/src/mongo_next/build/darwin/normal/third_party/boost"
 		]
 	}],
 	"conditions____foo": [
