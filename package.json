@@ -1,0 +1,29 @@
+{
+  "name": "node-pipeline",
+  "version": "0.0.1",
+  "description": "Provides an interface to a MongoDB-style pipeline",
+  "author": "Charles Ezell <charles.ezell@gmail.com>",
+  "main": "./lib/Pipeline.js",
+  "keywords": [
+    "mongodb",
+	"aggregate",
+	"pipeline"
+  ],
+  "dependencies": {
+  },
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "jshint": "*",
+    "jscoverage": "*",
+    "jscheckstyle": "*",
+    "yuidocjs": "*"
+  },
+  "license": "Commercial",
+  "private": true,
+  "engine": {
+    "node": ">=0.10"
+  }
+}
