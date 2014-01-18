@@ -17,6 +17,9 @@ High
 * Try to re-use MongoDB's pipeline test cases.
 * Remove #if 0 blocks from MongoV8Helpers.
 * Rename v8ToMongo* to v8ToBson*. 
+* Make using "copies" in gyp to copy over _all_ of the mongo cpp files we use (db/pipeline, ...) into src/mongo.
+  and add those new files to our sources.
+* Stop linking with ALL mongo libs.  We should be compiling everything we need directly.
 
 Medium
 ------
