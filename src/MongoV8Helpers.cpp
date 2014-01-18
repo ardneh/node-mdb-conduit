@@ -1,5 +1,3 @@
-//engine_v8.cpp
-
 /*    Copyright 2009 10gen Inc.
  *    it under the terms of the GNU Affero General Public License, version 3,
  *    as published by the Free Software Foundation.
@@ -44,6 +42,7 @@
 #include "mongo/util/mongoutils/str.h"
 #include "mongo/util/text.h"
 
+//Include stuff required by base64.h.  I think a bunch of this is included by mongo's pch.
 #include <boost/smart_ptr/scoped_array.hpp> //Needed by base64.h
 //#include <sstream>
 //using std::stringtream;
@@ -51,6 +50,9 @@ using namespace std;
 using namespace mongo;
 #include <string>
 #include "mongo/util/base64.h"
+
+//#include "debugbreak/debugbreak.h"
+
 
 using namespace mongoutils;
 
@@ -871,13 +873,33 @@ namespace not_mongo {
 
         // Don't add anything that can throw after this line otherwise we won't be unregistered.
         //registerOpId();
+
+
+
+//v8::Handle<v8::Value> regexp = _global->Get(strLitToV8("RegExp"));
+//verify(regexp->IsFunction());
+//_jsRegExpConstructor = v8::Persistent<v8::Function>::New(regexp.As<v8::Function>());
+
+		v8::Handle<v8::Value> JSON = _global->Get(strLitToV8("JSON"));//->ToObject();
+		//verify(JSON->IsObject());
+		_JSON = v8::Persistent<v8::Object>::New(JSON->ToObject());
+
+		//TODO: make a function to get these.
+
+		v8::Handle<v8::Value> jsonParse = _JSON->Get(strLitToV8("parse"));
+		//verify(jsonParse->IsFunction());
+		_jsonParse = v8::Persistent<v8::Function>::New(jsonParse.As<v8::Function>());
+
+		v8::Handle<v8::Value> jsonStringify = _JSON->Get(strLitToV8("stringify"));
+		//verify(jsonStringify->IsFunction());
+		_jsonStringify = v8::Persistent<v8::Function>::New(jsonStringify.As<v8::Function>());
+
     }
 
     MongoV8Helpers::~MongoV8Helpers() {
         //unregisterOpId();
     }
 
-#if 0 //Not needed.
     bool MongoV8Helpers::hasOutOfMemoryException() {
         V8_SIMPLE_HEADER
         if (!_context.IsEmpty())
@@ -885,6 +907,7 @@ namespace not_mongo {
         return false;
     }
 
+#if 0 //Not needed.
     v8::Handle<v8::Value> MongoV8Helpers::load(MongoV8Helpers* scope, const v8::Arguments &args) {
         v8::Context::Scope context_scope(scope->_context);
         for (int i = 0; i < args.Length(); ++i) {
@@ -1168,7 +1191,7 @@ namespace not_mongo {
         myTemplate->SetClassName(scope->strLitToV8("MaxKey"));
         return myTemplate;
     }
-#if 0 //Not needed.
+
     std::string MongoV8Helpers::v8ExceptionToSTLString(const v8::TryCatch* try_catch) {
         stringstream ss;
         v8::String::Utf8Value exceptionText(try_catch->Exception());
@@ -1188,6 +1211,10 @@ namespace not_mongo {
         if (resourceNameString.compare("undefined") == 0)
             return ss.str();
         if (resourceNameString.find("_funcs") == 0) {
+
+			//TODO: see if it makes sense to get this working since getFunctionCache is provided by engine.h
+
+			/*
             // script loaded from __createFunction
             string code;
             // find the source script based on the resource name supplied to v8::Script::Compile().
@@ -1241,7 +1268,7 @@ namespace not_mongo {
                 const int linenum = message->GetLineNumber();
                 if (linenum != 1)
                     ss << " (line " << linenum << ")";
-            }
+            }*/
         }
         else if (resourceNameString.find("(shell") == 0) {
             // script loaded from shell input -- simply print the error
@@ -1254,7 +1281,7 @@ namespace not_mongo {
         }
         return ss.str();
     }
-
+#if 0 //Not needed.
     // --- functions -----
 
     bool hasFunctionIdentifier(const mongo::StringData& code) {
@@ -1649,12 +1676,12 @@ namespace not_mongo {
 //TODO: throw.  We cannot do this right now.
 
         // throw on compile error
-        //checkV8ErrorState(compiled, try_catch);
+        checkV8ErrorState(compiled, try_catch);
 
-        v8::Local<v8::Value> ret;// = compiled->Run();
+        v8::Local<v8::Value> ret = compiled->Run();
 
         // throw on run/assignment error
-        //checkV8ErrorState(ret, try_catch);
+        checkV8ErrorState(ret, try_catch);
 
         return handle_scope.Close(ret);
     }
@@ -1949,6 +1976,12 @@ namespace not_mongo {
                 const string name = mongo::BSONObjBuilder::numStr(i);
                 v8ToMongoElement(arrBuilder, name, array->Get(i), depth+1, originalParent);
             }
+
+			//Test using ArrayBuilder to see if using BSONObjBuilder was what was causing my output to not come out as a 'real' array.
+            //mongo::BSONArrayBuilder arrBuilder;
+			//arrBuilder.append(5).append(4).append(3).append(2).append(1).append(0);
+			//arrBuilder.append(sname, arrBuilder.arr());
+
             return;
         }
         if (value->IsDate()) {
@@ -1980,6 +2013,12 @@ namespace not_mongo {
     }
 
     mongo::BSONObj MongoV8Helpers::v8ToMongo(v8::Handle<v8::Object> o, int depth) {
+		//V8_SIMPLE_HEADER
+
+	//const char* const json = *v8::String::Utf8Value(jsonStringify(o));
+//std::cerr << "v8ToMongo() input:\n" << json << "\n";
+//std::cout << "v8ToMongo() input isArray=" << o->IsArray() << "\n";
+
         mongo::BSONObj originalBSON;
         if (LazyBsonFT()->HasInstance(o)) {
             originalBSON = unwrapBSONObj(this, o);
@@ -2000,10 +2039,11 @@ namespace not_mongo {
             }
         }
 
+std::cout << "HERE!!!" << std::endl;
         v8::Local<v8::Array> names = o->GetOwnPropertyNames();
         for (unsigned int i=0; i<names->Length(); i++) {
             v8::Local<v8::String> name = names->Get(i)->ToString();
-
+std::cout << "**** procesing element " << i << std::endl;
             if (depth == 0 && name->StrictEquals(strLitToV8("_id")))
                 continue; // already handled above
 
@@ -2020,6 +2060,22 @@ namespace not_mongo {
 
         return b.obj(); // Would give an uglier error than above for oversized objects.
     }
+
+	v8::Handle<v8::String> MongoV8Helpers::jsonStringify(v8::Handle<v8::Value> object)
+	{
+		//V8_SIMPLE_HEADER
+		v8::HandleScope scope;
+
+		return scope.Close(_jsonStringify->Call(_JSON, 1, &object)->ToString());
+	}
+
+	v8::Handle<v8::Object> MongoV8Helpers::jsonParse(v8::Handle<v8::Value> strRep)
+	{
+		//V8_SIMPLE_HEADER
+		v8::HandleScope scope;
+
+		return scope.Close(_jsonParse->Call(_JSON, 1, &strRep)->ToObject());
+	}
 #if 0 //Not needed.
     // --- random utils ----
 

@@ -1,5 +1,3 @@
-//engine_v8.h
-
 /*    Copyright 2009 10gen Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +35,17 @@
 //#include "mongo/scripting/engine.h"
 //#include "mongo/scripting/v8_deadline_monitor.h"
 //#include "mongo/scripting/v8_profiler.h"
+
+/**
+ * V8_SIMPLE_HEADER must be placed in any function called from a public API
+ * that work with v8 handles (and/or must be within the V8Scope's isolate
+ * and context).  Be sure to close the handle_scope if returning a v8::Handle!
+ */
+#define V8_SIMPLE_HEADER                                                                      \
+        v8::Locker v8lock(_isolate);          /* acquire isolate lock */                      \
+        v8::Isolate::Scope iscope(_isolate);  /* enter the isolate; exit when out of scope */ \
+        v8::HandleScope handle_scope;         /* make the current scope own local handles */  \
+        v8::Context::Scope context_scope(_context); /* enter the context; exit when out of scope */
 
 namespace not_mongo {
 
@@ -151,10 +160,10 @@ namespace not_mongo {
 #endif //Not needed.
         /*virtual*/ void installBSONTypes();
 
-#if 0 //Not needed.
-        virtual string getError() { return _error; }
+        /*virtual*/ std::string getError() { return _error; }
 
-        virtual bool hasOutOfMemoryException();
+        /*virtual*/ bool hasOutOfMemoryException();
+#if 0 //Not needed.
 
         /**
          * Run the garbage collector on this scope (native function).  @see GCV8 for the
@@ -264,13 +273,14 @@ namespace not_mongo {
          */
         v8::Local<v8::Value> newFunction(const mongo::StringData& code);
 
-#if 0//Not needed.
+		v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> object);
+		v8::Handle<v8::Object> jsonParse(v8::Handle<v8::Value> object);
+
         /**
          * Convert a JavaScript exception to a stl string.  Requires
          * access to the MongoV8Helpers instance to report source context information.
          */
         std::string v8ExceptionToSTLString(const v8::TryCatch* try_catch);
-#endif //Not needed.
 
         /**
          * Create a V8 string with a local handle
@@ -314,6 +324,7 @@ namespace not_mongo {
 
 		v8::Persistent<v8::Context> _context;
 		v8::Persistent<v8::Object> _global;
+		std::string _error;
 
         /// Like v8::Isolate* but calls Dispose() in destructor.
         class IsolateHolder {
@@ -409,6 +420,9 @@ namespace not_mongo {
          */
         static v8::Handle<v8::Value> v8Callback(const v8::Arguments& args);
 
+        v8::Persistent<v8::Object> _JSON;
+        v8::Persistent<v8::Function> _jsonParse;
+        v8::Persistent<v8::Function> _jsonStringify;
 #if 0 //Not needed.
         /**
          * Interpreter agnostic 'Native Callback' trampoline.  Note this is only called
@@ -439,6 +453,13 @@ namespace not_mongo {
          */
         bool nativeEpilogue();
 
+
+        template <typename _HandleType>
+        bool checkV8ErrorState(const _HandleType& resultHandle,
+                               const v8::TryCatch& try_catch,
+                               bool reportError = true,
+                               bool assertOnError = true);
+
 #if 0 //Not needed.
         /**
          * Register this scope with the mongo op id.  If executing outside the
@@ -451,12 +472,6 @@ namespace not_mongo {
          * Unregister this scope with the mongo op id.
          */
         void unregisterOpId();
-
-        template <typename _HandleType>
-        bool checkV8ErrorState(const _HandleType& resultHandle,
-                               const v8::TryCatch& try_catch,
-                               bool reportError = true,
-                               bool assertOnError = true);
 
 #endif //Not needed.
         mongo::mutex _interruptLock; // protects interruption-related flags
@@ -488,5 +503,50 @@ namespace not_mongo {
         bool _readOnly;
         std::set<std::string> _removed;
     };
+
+    /**
+     * Check for an error condition (e.g. empty handle, JS exception, OOM) after executing
+     * a v8 operation.
+     * @resultHandle         handle storing the result of the preceeding v8 operation
+     * @try_catch            the active v8::TryCatch exception handler
+     * @param reportError    if true, log an error message
+     * @param assertOnError  if true, throw an exception if an error is detected
+     *                       if false, return value indicates error state
+     * @return true if an error was detected and assertOnError is set to false
+     *         false if no error was detected
+     */
+    template <typename _HandleType>
+    bool MongoV8Helpers::checkV8ErrorState(const _HandleType& resultHandle,
+                                    const v8::TryCatch& try_catch,
+                                    bool reportError,
+                                    bool assertOnError) {
+        bool haveError = false;
+
+        if (try_catch.HasCaught() && try_catch.CanContinue()) {
+            // normal JS exception
+            _error = v8ExceptionToSTLString(&try_catch);
+            haveError = true;
+        }
+        else if (hasOutOfMemoryException()) {
+            // out of memory exception (treated as terminal)
+            _error = "JavaScript execution failed -- v8 is out of memory";
+            haveError = true;
+        }
+        else if (resultHandle.IsEmpty() || try_catch.HasCaught()) {
+            // terminal exception (due to empty handle, termination, etc.)
+            _error = "JavaScript execution failed";
+            haveError = true;
+        }
+
+        if (haveError) {
+            if (reportError)
+                mongo::log() << _error << std::endl;
+            if (assertOnError)
+                mongo::uasserted(16722, _error);
+            return true;
+        }
+
+        return false;
+    }
 
 } //not_mongo

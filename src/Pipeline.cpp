@@ -1,19 +1,37 @@
 #include <node.h>
 #include <v8.h>
 
+
+//TODO: make our own version of this to help setup stuff for mongo (esp. using node's v8 and doing using namespace ...)
+//#include "mongo/pch.h"
+
 //TODO: include the appropriate files.  Note: these are found in the `foundation` library along with StartupTest.
 #define verify(x) {}
 #define uassert(a,b,c) {}
 #define massert(a,b,c) {}
+#define dassert(a) {}			//src/mongo/util/assert_util.h
 
 //TODO: remove need for this by only included the sources we need.
-#include <mongo/db/server_parameters.h>
+//#include <mongo/db/server_parameters.h>
 
 #include <mongo/bson/bsonobjbuilder.h>
 //#include <mongo/bson/bson.h>
 //#include <mongo/bson/mutable/document.h>
 
 #include <mongo/db/json.h> //fromjson().
+
+//Pipeline stuff.
+
+//Put this in our "mongo_pch.h" and include it before all mongo things.
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+using boost::intrusive_ptr;
+
+#include "mongo-ours/interrupt_status_noop.h"
+//#include "mongo/db/interrupt_status_mongod.h"
+//#include "mongo/db/pipeline/document.h"
+#include "mongo/db/pipeline/expression_context.h"
+//#include "mongo/db/pipeline/field_path.h"
+#include "mongo/db/pipeline/pipeline.h"
 
 #include "MongoV8Helpers.h"
 
@@ -57,19 +75,76 @@ Handle<Value> Method(const Arguments& args) {
 	not_mongo::MongoV8Helpers converter;
 
 	//1) Build a bson version of the pipeline :)	
-	mongo::BSONArrayBuilder arrBldr;
 	Handle<Array> array = Handle<Array>::Cast(args[0]);
-	for (uint32_t i = 0; i < array->Length(); ++i) {
+	mongo::BSONArray pipeline(converter.v8ToMongo(array));
+
+	mongo::BSONObjBuilder bldr;
+	bldr.append("pipeline", pipeline);
+	bldr.done();
+
+	mongo::BSONObj cmd(bldr.obj());
+
+std::cout << "  cmd.toString()=" << cmd.toString() << std::endl;
+std::cout << "  cmd.isValid()=" << cmd.isValid() << std::endl;
+//std::cout << "  cmd.couldBeArray()=" << cmd.couldBeArray() << std::endl;
+std::cout << "  cmd.dump()=\n"; cmd.dump(); std::cout << std::endl;
+
+
+	boost::intrusive_ptr<mongo::ExpressionContext> ctx =
+		new mongo::ExpressionContext(mongo::InterruptStatusNoop::status,
+				mongo:: NamespaceString("node-pipeline"));
+
+	std::string errmsg;
+	boost::intrusive_ptr<mongo::Pipeline> mergePipe =
+		mongo::Pipeline::parseCommand(errmsg, cmd, ctx);
+
+
+
+	//mongo::BSONArrayBuilder arrBldr(array->Length()),
+//	mongo::BSONArrayBuilder arrBldr;//,
+							//& arrBldrTop(arrBldr);
+	//mongo::BSONObj pipeline(converter.v8ToMongo(array)); //Yay!  So close!
+	//arrBldr.append(argsBson);
+	//mongo::BSONArrayBuilder arrBldrTop,
+	//						arrBldr(arrBldrTop.subarrayStart());
+/*	for (uint32_t i = 0; i < array->Length(); ++i) {
 		Local<Value> element(array->Get(i));
 
-		arrBldr.append(converter.v8ToMongo(element->ToObject()));
-	}
+std::cout << "  element.ToObject()=" << *v8::String::Utf8Value(element->ToObject()->ToDetailString()) << std::endl;
+std::cout << "  element.ToInteger()=" << *v8::String::Utf8Value(element->ToInteger()->ToDetailString()) << std::endl;
+		mongo::BSONObj temp(converter.v8ToMongo(element->ToObject()));
 
+std::cout << "  converted obj=" << temp.jsonString() << std::endl;
+//std::cout << "  converted type=" << temp.firstElementType() << ", obj=" << temp.jsonString() << std::endl;
+
+		arrBldr.append(temp);
+		//arrBldr.append(mongo::BSONObjBuilder::numStr(i), temp);
+
+		//arrBldr.append(i);//temp);  //Was for a simple test only!
+		//arrBldr.append(converter.v8ToMongo(element->ToObject()));
+	}
+*/
+////std::cout << "  arrBldrTop.IsArray()=" << arrBldrTop.isArray() << std::endl;
+//std::cout << "  arrBldr.IsArray()=" << arrBldr.isArray() << std::endl;
 	//TODO: release array.
 
-	mongo::BSONArray pipeline(arrBldr.arr());
-	//mongo::BSONObj test(mongo::fromjson("[{\"hello\":\"world\"}]"));
+	//mongo::BSONArray pipelineArr(arrBldr.arr());
+	//mongo::BSONObj pipeline(pipelineArr);
+	//mongo::BSONObj pipeline(arrBldr.obj());
+	//mongo::BSONObj pipeline(arrBldrTop.done());
 
+	//This results in an actual array when using just a BSONArrayBuilder. :)
+	//mongo::BSONObjBuilder temp;
+	//temp.append("foo", arrBldr.arr());
+	//mongo::BSONObj pipeline(temp.obj());
+
+	//mongo::BSONObj pipeline(mongo::fromjson("{\"t\":[10,{\"hello\":\"world\"}]}"));
+/*
+std::cout << "  pipeline.toString()=" << pipeline.toString() << std::endl;
+std::cout << "  pipeline.isValid()=" << pipeline.isValid() << std::endl;
+std::cout << "  pipeline.couldBeArray()=" << pipeline.couldBeArray() << std::endl;
+std::cout << "  pipeline.dump()=\n"; pipeline.dump(); std::cout << std::endl;
+*/
 	return scope.Close(String::New(pipeline.jsonString().c_str()));
 }
 
