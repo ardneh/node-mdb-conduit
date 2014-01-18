@@ -2039,11 +2039,9 @@ namespace not_mongo {
             }
         }
 
-std::cout << "HERE!!!" << std::endl;
         v8::Local<v8::Array> names = o->GetOwnPropertyNames();
         for (unsigned int i=0; i<names->Length(); i++) {
             v8::Local<v8::String> name = names->Get(i)->ToString();
-std::cout << "**** procesing element " << i << std::endl;
             if (depth == 0 && name->StrictEquals(strLitToV8("_id")))
                 continue; // already handled above
 

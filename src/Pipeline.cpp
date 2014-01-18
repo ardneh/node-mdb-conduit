@@ -26,8 +26,7 @@
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 using boost::intrusive_ptr;
 
-#include "mongo-ours/interrupt_status_noop.h"
-//#include "mongo/db/interrupt_status_mongod.h"
+#include "mongo-ours/db/interrupt_status_noop.h"
 //#include "mongo/db/pipeline/document.h"
 #include "mongo/db/pipeline/expression_context.h"
 //#include "mongo/db/pipeline/field_path.h"
@@ -80,22 +79,18 @@ Handle<Value> Method(const Arguments& args) {
 
 	mongo::BSONObjBuilder bldr;
 	bldr.append("pipeline", pipeline);
-	bldr.done();
 
 	mongo::BSONObj cmd(bldr.obj());
 
-std::cout << "  cmd.toString()=" << cmd.toString() << std::endl;
-std::cout << "  cmd.isValid()=" << cmd.isValid() << std::endl;
-//std::cout << "  cmd.couldBeArray()=" << cmd.couldBeArray() << std::endl;
-std::cout << "  cmd.dump()=\n"; cmd.dump(); std::cout << std::endl;
-
+//std::cout << "  cmd.jsonString()=" << cmd.jsonString() << std::endl;
+//std::cout << "  cmd.dump()=\n"; cmd.dump(); std::cout << std::endl;
 
 	boost::intrusive_ptr<mongo::ExpressionContext> ctx =
 		new mongo::ExpressionContext(mongo::InterruptStatusNoop::status,
 				mongo:: NamespaceString("node-pipeline"));
 
 	std::string errmsg;
-	boost::intrusive_ptr<mongo::Pipeline> mergePipe =
+	boost::intrusive_ptr<mongo::Pipeline> aggregator =
 		mongo::Pipeline::parseCommand(errmsg, cmd, ctx);
 
 
