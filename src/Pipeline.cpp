@@ -24,15 +24,25 @@
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 using boost::intrusive_ptr;
 
-#include "mongo-ours/db/interrupt_status_noop.h"
-#include "mongo/db/pipeline/document_source.h"
+//#include "mongo/db/pipeline/document_source.h"
 #include "mongo/db/pipeline/expression_context.h"
 #include "mongo/db/pipeline/pipeline.h"
+
+#include "mongo-ours/db/interrupt_status_noop.h"
+//TODO: use this instead of converting the input javascript types to BSON up front.
+#include "mongo-ours/db/pipeline/document_source_v8.h"
 
 #include "MongoV8Helpers.h"
 
 
 using namespace v8;
+
+namespace mongo {
+	//Yet another dynamic symbol failure (when using $sort).
+	//This is defined in mongo/db/server_options_helpers.cpp providing my own version
+	//to avoid having to pull in even more libs.  Should move this somewhere else.
+	bool isMongos() { return false; }
+}
 
 Handle<Value> aggregate(const Arguments& args) {
 	HandleScope scope;
@@ -92,24 +102,20 @@ Handle<Value> aggregate(const Arguments& args) {
 		//These steps were pieced together from:
 		//  PipelineD::prepareCursorSource(aggregator, pCtx);
 
-		//Note: I've skipped a bunch of steps like coalescing just to test this out.
+		//TODO: I've skipped a bunch of steps like coalescing just to test this out, put them back in.
 
 		//TODO: make our own version of DocumentSourceBsonArray so we do not have to
 		//convert the entire array to BSON upfront, we can do it an element at time.
 		Handle<Array> v8Input = Handle<Array>::Cast(args[1]);
-		mongo::BSONArray input(converter.v8ToMongo(v8Input));
 
-		boost::intrusive_ptr<mongo::DocumentSourceBsonArray> inputSrc(
-			mongo::DocumentSourceBsonArray::create( input, ctx ) );
+		boost::intrusive_ptr<mongo::DocumentSourceV8> inputSrc(
+			mongo::DocumentSourceV8::create( v8Input, ctx ) );
 		aggregator->addInitialSource(inputSrc);
-
-		//NOTE: we'll have to do something special for $sort unless the DocumentSourceBsonArray does is capable of sorting?
 
 		//Note: DocumentSourceOut and DocumentSourceGeoNear 'implement' DocumentSourceNeedsMongod
 		//So they are not allowed right now.  I haven't looked much at MongodImplementation but we can
 		//probably support at least Geo and maybe our own version of $out.
 
-		//Might cause issues with DocumentSourceBsonArray.
 		aggregator->stitch();
 
 		/*if (aggregator->isExplain()) {
@@ -123,6 +129,7 @@ Handle<Value> aggregate(const Arguments& args) {
 
 		//TODO: use MongoToV8 to convert the results to javascript.
 		//      Also try using JSON.parse() and compare the performance of the two for large result sets.
+		//Yikes!  'result.obj().jsonString()' takes ~260ms for the big subtract test.
 		return scope.Close(String::New(result.obj().jsonString().c_str()));
 	} catch(mongo::UserException& e) {
 		return scope.Close(String::New((std::string("{\"error\": \"running the pipeline failed.\", \"message\":\"") + e.what() + std::string("\"}")).c_str())); // Parsing error.

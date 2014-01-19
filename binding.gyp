@@ -18,7 +18,9 @@
 		"sources": [
 			"src/Pipeline.cpp",
 			"src/mongo-ours/db/interrupt_status_noop.cpp",
+			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
 			"src/MongoV8Helpers.cpp",
+			#"src/third-party/js-bson/ext/bson.cc",
 
 			# The 'default' intitalizer function looks to be getting optimized out of the build
 			# causing initialization to fail.  Including this here to try and prevent that from happening.
@@ -71,6 +73,7 @@
 			}]
 		],
 		"include_dirs": [
+			"src",
 			"src/third-party",
 			"<(mongo_dir)/src/third_party",
 			"<(mongo_dir)/src",
