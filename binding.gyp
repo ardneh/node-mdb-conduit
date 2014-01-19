@@ -83,6 +83,10 @@
 		"libraries": [
 			"-lbson",
 			"-lbase",				# Needed for initializers that are used to add all of the expressions at startup.
+			"-lexpressions",		# $match.  mongo/db/matcher/expression_parser.cpp, and probably mongo/db/matcher/expression_parser_tree.cpp
+			"-lpcrecpp",			# $match via expressions parser.
+			"-lpath",				# dyn failure after adding $match stuff.
+			"-lcommon",				# FieldRef::FieldRef dynamic lookup.  Not sure if $match needs this or not.
 			"-lcoredb",
 			"-lfoundation",
 			"-lstringutils",
@@ -110,6 +114,7 @@
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/util/concurrency",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/boost",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/murmurhash3",
+			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/pcre-8.30",
 
 			# TODO: Get rid of this!  should not need any auth.
 			"-lauthcore",

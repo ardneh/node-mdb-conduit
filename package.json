@@ -1,18 +1,19 @@
 {
-  "name": "node-pipeline",
+  "name": "mongodb-pipeline",
   "version": "0.0.1",
   "description": "Provides an interface to a MongoDB-style pipeline",
   "author": "Charles Ezell <charles.ezell@gmail.com>",
   "main": "./lib/Pipeline.js",
   "keywords": [
     "mongodb",
+	"mongo",
 	"aggregate",
 	"pipeline"
   ],
   "dependencies": {
   },
   "scripts": {
-    "install": "node-gyp rebuild"
+    "preinstall": "node-gyp rebuild"
   },
   "devDependencies": {
     "mocha": "*",
@@ -21,9 +22,9 @@
     "jscheckstyle": "*",
     "yuidocjs": "*"
   },
-  "license": "Commercial",
+  "license": "Affero General Public License v3",
   "private": true,
   "engine": {
-    "node": ">=0.10"
+    "node": "~0.10.x"
   }
 }
