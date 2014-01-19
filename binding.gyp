@@ -20,6 +20,10 @@
 			"src/mongo-ours/db/interrupt_status_noop.cpp",
 			"src/MongoV8Helpers.cpp",
 
+			# The 'default' intitalizer function looks to be getting optimized out of the build
+			# causing initialization to fail.  Including this here to try and prevent that from happening.
+			"src/mongo/base/init.cpp",
+
 			# TODO: make libs for these.
 			"src/mongo/util/intrusive_counter.cpp",
 			"src/mongo/db/query/lite_parsed_query.cpp"
@@ -30,12 +34,19 @@
 		"variables": {
 			"mongo_dir": "/Users/cezell/src/mongo_next",
 			"mongo_build_type": "normal"
+			#"mongo_build_type": "d"
 		},
 		"copies": [
 			{
 				"destination": "src/mongo/util",
 				"files": [
 					"<(mongo_dir)/src/mongo/util/intrusive_counter.cpp"
+				]
+			},
+			{
+				"destination": "src/mongo/base",
+				"files": [
+					"<(mongo_dir)/src/mongo/base/init.cpp"
 				]
 			},
 			{
@@ -68,11 +79,11 @@
 		],
 		"libraries": [
 			"-lbson",
+			"-lbase",				# Needed for initializers that are used to add all of the expressions at startup.
 			"-lcoredb",
 			"-lfoundation",
 			"-lstringutils",
 			"-lplatform",
-			"-lbase",
 			"-llogger",
 			"-lthread_name", # For logger.
 			"-llasterror", # For logger.
@@ -86,6 +97,7 @@
 			"-lfail_point",# Required by lnetwork
 			"-lboost_system",
 			"-lboost_thread",
+			"-lmurmurhash3", # Needed by -lbase and intializer stuff.
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/base",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/platform",
@@ -94,6 +106,7 @@
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/util",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/util/concurrency",
 			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/boost",
+			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/murmurhash3",
 
 			# TODO: Get rid of this!  should not need any auth.
 			"-lauthcore",
