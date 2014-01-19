@@ -27,18 +27,12 @@
 using boost::intrusive_ptr;
 
 #include "mongo-ours/db/interrupt_status_noop.h"
-//#include "mongo/db/pipeline/document.h"
+#include "mongo/db/pipeline/document_source.h"
 #include "mongo/db/pipeline/expression_context.h"
-//#include "mongo/db/pipeline/field_path.h"
 #include "mongo/db/pipeline/pipeline.h"
 
 #include "MongoV8Helpers.h"
 
-namespace mongo {
-	
-	class PeriodicTask {};
-
-}
 
 using namespace v8;
 
@@ -73,9 +67,9 @@ Handle<Value> Method(const Arguments& args) {
 
 	not_mongo::MongoV8Helpers converter;
 
-	//1) Build a bson version of the pipeline :)	
-	Handle<Array> array = Handle<Array>::Cast(args[0]);
-	mongo::BSONArray pipeline(converter.v8ToMongo(array));
+	//1) Build a bson version of the pipeline :)
+	Handle<Array> v8Pipeline = Handle<Array>::Cast(args[0]);
+	mongo::BSONArray pipeline(converter.v8ToMongo(v8Pipeline));
 
 	mongo::BSONObjBuilder bldr;
 	bldr.append("pipeline", pipeline);
@@ -93,6 +87,60 @@ Handle<Value> Method(const Arguments& args) {
 	boost::intrusive_ptr<mongo::Pipeline> aggregator =
 		mongo::Pipeline::parseCommand(errmsg, cmd, ctx);
 
+	if (!aggregator.get())
+		return scope.Close(String::New("{\"error\": \"parsing pipeline failed.\"}")); // Parsing error.
+
+	//These steps were pieced together from:
+	//  PipelineD::prepareCursorSource(aggregator, pCtx);
+
+	//Note: I've skipped a bunch of steps like coalescing just to test this out.
+
+	//TODO: make our own version of DocumentSourceBsonArray so we do not have to
+	//convert the entire array to BSON upfront, we can do it an element at time.
+	Handle<Array> v8Input = Handle<Array>::Cast(args[1]);
+	mongo::BSONArray input(converter.v8ToMongo(v8Input));
+
+	boost::intrusive_ptr<mongo::DocumentSourceBsonArray> inputSrc(
+		mongo::DocumentSourceBsonArray::create( input, ctx ) );
+	aggregator->addInitialSource(inputSrc);
+
+	//NOTE: we'll have to do something special for $sort unless the DocumentSourceBsonArray does is capable of sorting?
+
+	//Note: DocumentSourceOut and DocumentSourceGeoNear 'implement' DocumentSourceNeedsMongod
+	//So they are not allowed right now.  I haven't looked much at MongodImplementation but we can
+	//probably support at least Geo and maybe our own version of $out.
+
+	//Might cause issues with DocumentSourceBsonArray.
+	aggregator->stitch();
+
+	/*if (aggregator->isExplain()) {
+		result << "stages" << Value(aggregator->writeExplainOps());
+		return true; // don't do any actual execution
+	}*/
+
+	//Run w/o cursor (get all of the results at once).
+	mongo::BSONObjBuilder result;
+	aggregator->run(result);
+
+	//See db/commands/pipeline_command.cpp handleCursorCommand() and PipelineRunner
+		//for how to get result documents back as they are processed.
+
+
+/*
+		//Async output.
+        boost::optional<BSONObj> getNextBson() {
+            if (boost::optional<Document> next = _pipeline->output()->getNext()) {
+                if (_includeMetaData) {
+                    return next->toBsonWithMetaData();
+                }
+                else {
+                    return next->toBson();
+                }
+            }
+
+            return boost::none;
+        }
+*/
 
 
 	//mongo::BSONArrayBuilder arrBldr(array->Length()),
@@ -140,7 +188,7 @@ std::cout << "  pipeline.isValid()=" << pipeline.isValid() << std::endl;
 std::cout << "  pipeline.couldBeArray()=" << pipeline.couldBeArray() << std::endl;
 std::cout << "  pipeline.dump()=\n"; pipeline.dump(); std::cout << std::endl;
 */
-	return scope.Close(String::New(pipeline.jsonString().c_str()));
+	return scope.Close(String::New(result.obj().jsonString().c_str()));
 }
 
 void init(Handle<Object> exports) {
