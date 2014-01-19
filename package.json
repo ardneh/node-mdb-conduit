@@ -11,6 +11,7 @@
 	"pipeline"
   ],
   "dependencies": {
+	  "bindings": "*"
   },
   "scripts": {
     "preinstall": "node-gyp rebuild"
