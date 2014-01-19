@@ -14,6 +14,7 @@ High
 ----
 * Try the https://github.com/mongodb/js-bson node module and if it's at least close to as fast as v8ToMongo, get rid of MongoV8Helpers.
   Otherwise, rename MongoV8Helpers to someone meaningful (all it does/should do is convert from V8 types <-> BSON).
+* Move test cases to test/
 * Make it extentable (DocumentSources, Pipeline, etc...) preferably both from C++ AND node.
 * Enable veryfy(), *assert(),
 * Try to re-use MongoDB's pipeline test cases.
