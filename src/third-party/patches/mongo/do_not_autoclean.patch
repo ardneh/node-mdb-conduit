@@ -1,0 +1,14 @@
+diff --git a/SConstruct b/SConstruct
+index 2a1e091..2185e20 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -1689,7 +1689,7 @@ def clean_old_dist_builds(env, target, source):
+         except:
+             os.remove(filename)
+ 
+-env.Alias("dist_clean", [], [clean_old_dist_builds])
+-env.AlwaysBuild("dist_clean")
++# env.Alias("dist_clean", [], [clean_old_dist_builds])
++# env.AlwaysBuild("dist_clean")
+ 
+ env.Alias('all', ['core', 'tools', 'test', 'unittests', 'moduletests'])

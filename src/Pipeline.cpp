@@ -13,6 +13,8 @@
 #define massert(a,b,c) {}
 #define dassert(a) {}						//src/mongo/util/assert_util.h
 
+#include "mongo/pch.h"
+
 #include "mongo/base/initializer.h" 	 	//runGlobalInitializers()
 #include "mongo/bson/bsonobjbuilder.h"
 

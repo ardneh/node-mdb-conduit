@@ -11,7 +11,8 @@
 	"pipeline"
   ],
   "dependencies": {
-	  "bindings": "*"
+	  "bindings": "*",
+	  "node-gyp": "*"
   },
   "scripts": {
     "preinstall": "node-gyp rebuild"
@@ -27,5 +28,8 @@
   "private": true,
   "engine": {
     "node": "~0.10.x"
-  }
+  },
+  "os": [
+     "linux"
+  ]
 }

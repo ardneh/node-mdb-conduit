@@ -1,3 +1,6 @@
+# Here is an incomplete list of things that we need to make a mongo build to get:
+# * mongo/base/error_codes.h
+
 {
 	"target_defaults": {
 		"configurations": {
@@ -14,6 +17,13 @@
 		},
 	},
 	"targets": [{
+	#	"target_name": "clone_mongo",	# TODO: clone mongo into src/third-party.  The the pre-built option in node-gyp might provide a good example.
+						# See: https://code.google.com/p/gyp/wiki/GypLanguageSpecification#Actions
+						# And maybe: http://stackoverflow.com/questions/18102858/how-to-move-gyp-target-to-a-separate-include-file
+	#	"git clone -b v2.6 --depth 2 --single-branch https://github.com/mongodb/mongo src/third-party/mongo"
+	#}, {
+	#	"target_name": "clone_mongo_cxx_driver", # TODO: for the json->bson parser :)  Assumes it will not be in the mongo src for much longer.
+	#}, {
 		"target_name": "pipeline",
 		"sources": [
 			"src/Pipeline.cpp",
@@ -32,11 +42,21 @@
 		],
 		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
 		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
+		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
+		# TEMP TODO: make sure we are using the same allocator.
+		"cflags": [
+			"-Wno-ignored-qualifiers", "-Wno-extra",
+			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
+		],
 		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included...  Debug build of mongo doesn't seem to include it.
 		"variables": {
-			"mongo_dir": "/Users/cezell/src/mongo_next",
-			"mongo_build_type": "normal"
-			#"mongo_build_type": "d"
+			"our_dir": "<!(pwd)", # TODO: use a pre-defined variable.  It doesn't look like gyp provides one?
+			"third_party_dir": "<(our_dir)/src/third-party",
+			"mongo_dir": "<(third_party_dir)/mongo",
+			"mongo_build_type": "normal",
+			#"mongo_build_type": "d",
+			"mongo_build_name": "<!(python get_mongo_platform.py)",
+			"mongo_build_dir": "<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)",
 		},
 		"copies": [
 			{
@@ -63,22 +83,28 @@
 		],
 		"conditions": [
 			["OS=='mac'", {
-				"variables": {
-					"mongo_build_name": "darwin",
-				},
+				#"variables": {
+				#	"mongo_build_name": "darwin",
+				#},
 				"xcode_settings": {
 					"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
 					"GCC_ENABLE_CPP_RTTI": "YES"
 				}
+			}],
+			["OS=='linux'", {
+				#"variables": {
+				#	"mongo_build_name": "linux",
+				#}
 			}]
 		],
 		"include_dirs": [
 			"src",
 			"src/third-party",
 			"<(mongo_dir)/src/third_party",
+			"<(mongo_dir)/src/third_party/boost",
 			"<(mongo_dir)/src",
 			"<(mongo_dir)/src/mongo/",  # The pipeline files do include "bson/..."
-			"<(mongo_dir)/build/<(mongo_build_name)/>(mongo_build_type)"
+			"<(mongo_build_dir)"
 		],
 		"libraries": [
 			"-lbson",
@@ -105,20 +131,20 @@
 			"-lboost_system",
 			"-lboost_thread",
 			"-lmurmurhash3", # Needed by -lbase and intializer stuff.
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/base",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/platform",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/logger",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/db",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/util",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/util/concurrency",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/boost",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/murmurhash3",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/third_party/pcre-8.30",
+			"-L<(mongo_build_dir)/mongo",
+			"-L<(mongo_build_dir)/mongo/base",
+			"-L<(mongo_build_dir)/mongo/platform",
+			"-L<(mongo_build_dir)/mongo/logger",
+			"-L<(mongo_build_dir)/mongo/db",
+			"-L<(mongo_build_dir)/mongo/util",
+			"-L<(mongo_build_dir)/mongo/util/concurrency",
+			"-L<(mongo_build_dir)/third_party/boost",
+			"-L<(mongo_build_dir)/third_party/murmurhash3",
+			"-L<(mongo_build_dir)/third_party/pcre-8.30",
 
 			# TODO: Get rid of this!  should not need any auth.
 			"-lauthcore",
-			"-L<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)/mongo/db/auth"
+			"-L<(mongo_build_dir)/mongo/db/auth"
 		]
 	}]
 }

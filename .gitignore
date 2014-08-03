@@ -1,3 +1,13 @@
 /build
 /node_modules
 /src/mongo
+*.swp
+
+/bin
+/include
+/share
+/lib/node_modules
+/src/node-*
+/src/tmpbin
+/src/build
+/src/third-party
