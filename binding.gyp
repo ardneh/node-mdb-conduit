@@ -128,6 +128,7 @@
 			"-lspin_lock",# Another misc.
 			"-lnetwork",# Another misc.
 			"-lfail_point",# Required by lnetwork
+			"-lcoreserver",
 			"-lboost_system",
 			"-lboost_thread",
 			"-lmurmurhash3", # Needed by -lbase and intializer stuff.

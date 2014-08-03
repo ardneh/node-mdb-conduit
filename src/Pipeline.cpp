@@ -40,6 +40,11 @@ namespace mongo {
 	//This is defined in mongo/db/server_options_helpers.cpp providing my own version
 	//to avoid having to pull in even more libs.  Should move this somewhere else.
 	bool isMongos() { return false; }
+
+	//Yep, this is horrible. :)  It's defined as part of the mongos code
+	//and I do not want to pull any more things in.
+	struct VersionManager {};
+	VersionManager versionManager;
 }
 
 Handle<Value> aggregate(const Arguments& args) {
