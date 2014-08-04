@@ -25,7 +25,7 @@ Build Requirements
 * Python
 * scons
 * The rest of the MongoDB build requirements
-** See [http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/]
+*  See [http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/]
 
 Build Steps
 -----------
@@ -52,16 +52,18 @@ TODO
 ----
 * Move all of the pipeline code to it's own repo and have this downloand and
   build it.  The only code that should be in this package is the node glue.
-** If it is too difficult to copy the relevent mongodb source files over and
+*  If it is too difficult to copy the relevent mongodb source files over and
    build everything with gyp then at least compile MongoDB's buildinfo.cpp and
    call compilerFlags() in bindings.gyp to get the compiler flags for the
    pipeline.
+* Run as many of MongoDB's unit tests as possible.
+* Develop an pipeline agnostic set of tests that can be used for this and munge.
 * Test out the C++ driver's json parser!  See if that is faster than going from
   v8 objects to bson.
-** See if maybe another version of it could be used to go from v8 to bson.
+*   See if maybe another version of it could be used to go from v8 to bson.
 * Improve speed.  Re-time against mungedb-aggregate, but against bson data
   (no-conversion step).
-** Investigate what it would take for the bson builder / reader classes to
+*  Investigate what it would take for the bson builder / reader classes to
    handle json.
 * Make it able to accept v8 objects, json and bson.
 * Use thread pool instead of trying to make any part of the pipeline async,
@@ -84,8 +86,8 @@ High
 * Rename v8ToMongo* to v8ToBson*. 
 * Make using "copies" in gyp to copy over _all_ of the mongo cpp files we use
   (db/pipeline, ...) into src/mongo and add those new files to our sources.
-** Stop linking with ALL mongo libs.  We should be compiling everything we need
-  directly.
+*  Stop linking with ALL mongo libs.  We should be compiling everything we need
+   directly.
 
 Medium
 ------

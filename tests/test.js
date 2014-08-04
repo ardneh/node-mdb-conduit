@@ -20,6 +20,14 @@ describe("aggregate", function(){
 		});
 	});
 
+	describe("$project", function(){
+		it("should be able to rename a field", function(){
+			var expected = [{"bar":3},{"bar":5},{"bar":2},{"bar":1},{"bar":4}],
+				actual = aggregate([{$project:{"bar":"$v"}}], sampleDocs1);
+			assert.deepEqual(actual, expected);
+		});
+	});
+
 	describe("$sort", function(){
 		it("should be able to sort a simple set of documents", function(){
 			var expected = [{"v":5},{"v":4},{"v":3},{"v":2},{"v":1}],
