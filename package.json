@@ -15,7 +15,8 @@
 	  "node-gyp": "*"
   },
   "scripts": {
-    "preinstall": "node-gyp rebuild"
+    "preinstall": "node-gyp rebuild",
+    "test": "mocha tests"
   },
   "devDependencies": {
     "mocha": "*",

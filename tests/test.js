@@ -29,7 +29,7 @@ describe("aggregate", function(){
 	});
 
 	describe("$group", function(){
-		it("should be able to group everything together", function(){
+		it("should be able to group on null", function(){
 			var expected = [{"_id":null,"sum":15,"count":5}],
 				actual = aggregate([{
 						$group:{
