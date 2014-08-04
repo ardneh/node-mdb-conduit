@@ -35,6 +35,8 @@ using boost::intrusive_ptr;
 
 using namespace v8;
 
+//Begin hacks to get around missing symbols.
+
 namespace mongo {
 	//Yet another dynamic symbol failure (when using $sort).
 	//This is defined in mongo/db/server_options_helpers.cpp providing my own version
@@ -46,6 +48,18 @@ namespace mongo {
 	struct VersionManager {};
 	VersionManager versionManager;
 }
+
+//Begin hacks to make sure the linker knows we actually use these.
+
+#include <db/matcher/expression_parser.h>
+
+namespace mongo {
+
+	StatusWithMatchExpression (*weNeed_parse)(const BSONObj&) = &MatchExpressionParser::parse;
+
+}
+
+//Done with hacks... For now!
 
 Handle<Value> aggregate(const Arguments& args) {
 	HandleScope scope;
@@ -116,7 +130,7 @@ Handle<Value> aggregate(const Arguments& args) {
 		//Yikes!  'result.obj().jsonString()' takes ~260ms for the big subtract test.
 		return scope.Close(String::New(result.obj().jsonString().c_str()));
 	} catch(mongo::UserException& e) {
-		return scope.Close(String::New((std::string("{\"error\": \"running the pipeline failed.\", \"message\":\"") + e.what() + std::string("\"}")).c_str())); // Parsing error.
+		return scope.Close(String::New((std::string("{\"error\": \"running the pipeline failed:\"") + e.what() + std::string("\"}")).c_str())); // Parsing error.
 	}
 
 	//See db/commands/pipeline_command.cpp handleCursorCommand() and PipelineRunner

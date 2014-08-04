@@ -113,7 +113,7 @@
 			"-lpcrecpp",			# $match via expressions parser.
 			"-lpath",				# dyn failure after adding $match stuff.
 			"-lcommon",				# FieldRef::FieldRef dynamic lookup.  Not sure if $match needs this or not.
-			"-lcoredb",
+			"-lcoredb",			# All of the pipeline stuff.
 			"-lfoundation",
 			"-lstringutils",
 			"-lplatform",
