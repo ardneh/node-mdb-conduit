@@ -79,7 +79,7 @@ High
   close to as fast as v8ToMongo, get rid of MongoV8Helpers. Otherwise, rename
   MongoV8Helpers to someone meaningful (all it does/should do is convert from
   V8 types <-> BSON).
-* Move test cases to test/
+* Coalesce and optimise the input pipeline.
 * Make it extentable (DocumentSources, Pipeline, etc...) preferably both from
   C++ AND node (much lower priority).
 * Enable veryfy(), *assert(),
