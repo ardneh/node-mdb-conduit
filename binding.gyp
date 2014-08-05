@@ -55,7 +55,7 @@
 			"mongo_dir": "<(third_party_dir)/mongo",
 			"mongo_build_type": "normal",
 			#"mongo_build_type": "d",
-			"mongo_build_name": "<!(python get_mongo_platform.py)",
+			"mongo_build_name": "<!(python bin/get_mongo_platform.py)",
 			"mongo_build_dir": "<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)",
 		},
 		"copies": [
