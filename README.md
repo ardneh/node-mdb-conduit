@@ -2,7 +2,7 @@ This node modules makes [MongoDB's](http://mongodb.org) aggregation pipeline
 (henceforce `pipeline`) avaiable for use in NodeJS.
 
 Potential uses
---------------
+------------------
 * Provide a common API to query data in an application (one DSL).
 * Post-processing of data returned by MongoDB.
 * Pre-processing of pipelines sent to MongoDB.
@@ -10,7 +10,7 @@ Potential uses
 * Profile pipeline operations more easily.
 
 Disclaimers
------------
+---------------
 * This was initially put together as a very quick proof-of-concept so in it's
   current state it is not pretty.
 * It is only going to build on *nix platforms for now.  "Linux" should work
@@ -21,21 +21,23 @@ Disclaimers
   v0.10 and v0.11/12.
 
 Build Requirements
------------
+-------------------------
 * Python
 * scons
 * The rest of the MongoDB build requirements
 *  See [Building MongoDB](http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/)
 
 Build Steps
------------
+---------------
 Note: All of these will be rolled into bindings.gyp as time permits
 * Setup a nodeenv.  You can skip this if you want to install globally, etc...
-  `pip install nodeenv`
-  `nodeenv --force .`
-  `. bin/activate`
-  `ln -s lib/node_modules node_modules`
-  `npm install -g node-gyp`
+  ```sh
+  pip install nodeenv
+  nodeenv --force .
+  . bin/activate
+  ln -s lib/node_modules node_modules
+  npm install -g node-gyp
+  ```
 * Clone the MongoDB source:
   ```sh
   git clone -b v2.6 --depth 2 --single-branch https://github.com/mongodb/mongo src/third-party/mongo
@@ -43,18 +45,22 @@ Note: All of these will be rolled into bindings.gyp as time permits
 * Build some of the mongo libs we currently depend on.  This takes a while, up
   to ~25 minutes with -j 2, definitely use a larger number than 2 if you have
   more processors to spare.
-  `cd src/third-party/mongo`
-  `patch -p1 < ../patches/mongo/do_not_autoclean.patch`
-  `time scons -j 2 mongos`
-  `cd -`
+  ```sh
+  cd src/third-party/mongo
+  patch -p1 < ../patches/mongo/do_not_autoclean.patch
+  time scons -j 2 mongos
+  cd -
+  ```
 * Now we can build the actual node module:
-  `npm install`
+  ```sh
+  npm install
+  ```
 
 TODO
-----
-* Move all of the pipeline code to it's own repo and have this downloand and
+--------
+* Move all of the pipeline code to it's own repo and have this download and
   build it.  The only code that should be in this package is the node glue.
-*  If it is too difficult to copy the relevent mongodb source files over and
+*  If it is too difficult to copy the relevant mongodb source files over and
    build everything with gyp then at least compile MongoDB's buildinfo.cpp and
    call compilerFlags() in bindings.gyp to get the compiler flags for the
    pipeline.
@@ -74,13 +80,13 @@ TODO
 * Build mongo with C++11 support: --c++11=C++11
 
 High
-----
+------
 * Try the https://github.com/mongodb/js-bson node module and if it's at least
   close to as fast as v8ToMongo, get rid of MongoV8Helpers. Otherwise, rename
   MongoV8Helpers to someone meaningful (all it does/should do is convert from
   V8 types <-> BSON).
-* Coalesce and optimise the input pipeline.
-* Make it extentable (DocumentSources, Pipeline, etc...) preferably both from
+* Coalesce and optimize the input pipeline.
+* Make it extendable (DocumentSources, Pipeline, etc...) preferably both from
   C++ AND node (much lower priority).
 * Enable veryfy(), *assert(),
 * Try to re-use MongoDB's pipeline test cases.
@@ -92,7 +98,7 @@ High
    directly.
 
 Medium
-------
+----------
 * Only include (build) the files we actually need from MongoDB (mostly in
   pipeline/).
   - Do not actually link any MongoDB libraries.  Watch out for the one case
@@ -100,10 +106,10 @@ Medium
     Hopefully we won't need that for more than error_codes.[h|cpp].
 * Provide our own DocumentSource based on node streams or something so we can
   pass items through a pipeline as they become available.  This is low priority
-  because $group and $sort will force the entire pipeline to be syncronous
+  because $group and $sort will force the entire pipeline to be synchronous
   anyways.
 * Make a base class for MongoDB's scripting V8Scope class
-  (in mongo/scripting/engine_v8.*) that we can use for convertion V8 object to
+  (in mongo/scripting/engine_v8.*) that we can use for converting V8 object to
   and from BSON.  Update: hoping this will no longer be needed.
   - Make the relevant items in src/mongo/scripting/v8_db.* either take the new
     base class instead of Scope* or make them templates so they can accept
