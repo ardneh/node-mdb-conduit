@@ -1,5 +1,5 @@
 This node modules makes [MongoDB's](http://mongodb.org) aggregation pipeline
-(henceforce `pipeline`) avaiable for use in NodeJS.
+(henceforce `pipeline`) available for use in NodeJS.
 
 Potential uses
 ------------------
@@ -13,7 +13,7 @@ Disclaimers
 ---------------
 * This was initially put together as a very quick proof-of-concept so in it's
   current state it is not pretty.
-* It is only going to build on *nix platforms for now.  "Linux" should work
+* It is only going to build on `nix platforms for now.  "Linux" should work
   and OS X should be easy to make work if it does not already.
 * This is the first time I've used gyp, so I am certain I could be doing some
   things better there.
