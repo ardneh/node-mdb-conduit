@@ -35,14 +35,14 @@
 #"build/Release/obj.target/mongo/bson/bson_validate_test.cpp",
 #"build/Release/obj.target/mongo/bson/bsonobjbuilder_test.cpp",
 "build/Release/obj.target/mongo/bson/oid.cpp",
-"build/Release/obj.target/mongo/bson/optime.cpp",
+#"build/Release/obj.target/mongo/bson/optime.cpp",
 "build/Release/obj.target/mongo/pch.cpp",
 #"build/Release/obj.target/mongo/platform/atomic_word_test.cpp",
 "build/Release/obj.target/mongo/platform/backtrace.cpp",
 #"build/Release/obj.target/mongo/platform/bits_test.cpp",
 "build/Release/obj.target/mongo/platform/posix_fadvise.cpp",
 "build/Release/obj.target/mongo/platform/process_id.cpp",
-"build/Release/obj.target/mongo/platform/process_id_test.cpp",
+#"build/Release/obj.target/mongo/platform/process_id_test.cpp",
 "build/Release/obj.target/mongo/platform/random.cpp",
 #"build/Release/obj.target/mongo/platform/random_test.cpp",
 "build/Release/obj.target/mongo/platform/strcasestr.cpp",
@@ -55,9 +55,9 @@
 "build/Release/obj.target/mongo/logger/logstream_builder.cpp",
 "build/Release/obj.target/mongo/logger/message_event_utf8_encoder.cpp",
 "build/Release/obj.target/mongo/logger/message_log_domain.cpp",
-"build/Release/obj.target/mongo/logger/ramlog.cpp",
-"build/Release/obj.target/mongo/logger/rotatable_file_manager.cpp",
-"build/Release/obj.target/mongo/logger/rotatable_file_writer.cpp",
+#"build/Release/obj.target/mongo/logger/ramlog.cpp", # Includes util/mongoutils/html.h, trying to skip.
+#"build/Release/obj.target/mongo/logger/rotatable_file_manager.cpp", # Includes mongo/util/map_util.h, trying to skip.
+#"build/Release/obj.target/mongo/logger/rotatable_file_writer.cpp", # Part of rotatable_file_manager.cpp ?
 #"build/Release/obj.target/mongo/logger/rotatable_file_writer_test.cpp",
 "build/Release/obj.target/mongo/db/pipeline/accumulator_add_to_set.cpp",
 "build/Release/obj.target/mongo/db/pipeline/accumulator_avg.cpp",
@@ -71,7 +71,7 @@
 "build/Release/obj.target/mongo/db/pipeline/document_source.cpp",
 "build/Release/obj.target/mongo/db/pipeline/document_source_bson_array.cpp",
 "build/Release/obj.target/mongo/db/pipeline/document_source_command_shards.cpp",
-"build/Release/obj.target/mongo/db/pipeline/document_source_cursor.cpp",
+"build/Release/obj.target/mongo/db/pipeline/document_source_cursor.cpp", # This pulled in a ton of stuff, including a bunch of server only things.  Try to get rid of it or split it up to client only bits.
 "build/Release/obj.target/mongo/db/pipeline/document_source_geo_near.cpp",
 "build/Release/obj.target/mongo/db/pipeline/document_source_group.cpp",
 "build/Release/obj.target/mongo/db/pipeline/document_source_limit.cpp",

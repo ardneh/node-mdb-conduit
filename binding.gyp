@@ -81,6 +81,9 @@
 				}
 			}],
 			["OS=='linux'", {
+				'defines':[
+					"MONGO_HAVE_EXECINFO_BACKTRACE=1",  # TODO: need to only set this if <execinfo.h> is present on the system.
+				],
 				#"variables": {
 				#	"mongo_build_name": "linux",
 				#}
@@ -138,6 +141,14 @@
 						"<(mongo_src_dir)/util/unordered_fast_key_table_internal.h",
 						"<(mongo_src_dir)/util/text.h",
 						"<(mongo_src_dir)/util/base64.h",
+						"<(mongo_src_dir)/util/safe_num.h",
+						"<(mongo_src_dir)/util/safe_num-inl.h",
+						# TODO this is required by document_source_cursor.cpp, db/db_client.h
+						#            and we should mock out the functionality we need.
+						"<(mongo_src_dir)/util/paths.h",		# Seems like this is a reasonable dependency.
+						"<(mongo_src_dir)/util/progress_meter.h",
+						# --- document_source_cursor.cpp stuff to remove.
+
 					]
 			},
 			{
@@ -148,6 +159,13 @@
 						"<(mongo_src_dir)/util/concurrency/mutex.h",
 						"<(mongo_src_dir)/util/concurrency/threadlocal.h",
 						"<(mongo_src_dir)/util/concurrency/ticketholder.h",
+						# TODO this is required by document_source_cursor.cpp, db/d_concurrency.h:41:43 |  db/curop.h
+						#            and we should mock out the functionality we need.
+						"<(mongo_src_dir)/util/concurrency/rwlock.h",
+						"<(mongo_src_dir)/util/concurrency/rwlockimpl.h",
+						"<(mongo_src_dir)/util/concurrency/simplerwlock.h",
+						"<(mongo_src_dir)/util/concurrency/spin_lock.h",
+						# --- document_source_cursor.cpp stuff to remove.
 					]
 			},
 			{
@@ -208,6 +226,11 @@
 						'<(mongo_src_dir)/s/shard_key_pattern.h',
 						'<(mongo_src_dir)/s/request.h',
 						'<(mongo_src_dir)/s/config.h',
+
+						# Another document_source_cursor.cpp thing to try to remove.
+						'<(mongo_src_dir)/s/d_logic.h',
+						'<(mongo_src_dir)/s/stale_exception.h',
+						# End Another document_source_cursor.cpp thing to try to rem ove.
 					]
 			},
 			{
@@ -234,6 +257,20 @@
 						"<(mongo_src_dir)/db/projection.h",
 						"<(mongo_src_dir)/db/sorter",
 						"<(mongo_src_dir)/db/json.h",
+
+						# TODO this is required by document_source_cursor.cpp:33:31: fatal error: mongo/db/instance.h
+						#            and we should mock out the functionality we need.
+						"<(mongo_src_dir)/db/instance.h",
+						"<(mongo_src_dir)/db/client.h",
+						"<(mongo_src_dir)/db/client_basic.h",
+						"<(mongo_src_dir)/db/d_concurrency.h",
+						"<(mongo_src_dir)/db/lockstat.h",
+						"<(mongo_src_dir)/db/lasterror.h",
+						"<(mongo_src_dir)/db/lockstate.h",
+						"<(mongo_src_dir)/db/storage_options.h",
+						"<(mongo_src_dir)/db/curop-inl.h",
+						"<(mongo_src_dir)/db/curop.h",
+						# --- document_source_cursor.cpp stuff to remove.
 					]
 			},
 			{
@@ -248,8 +285,29 @@
 						"<(mongo_src_dir)/db/query/runner.h",
 						"<(mongo_src_dir)/db/query/canonical_query.h",
 						"<(mongo_src_dir)/db/query/parsed_projection.h",
+						"<(mongo_src_dir)/db/query/find_constants.h",				# Remove? included by document_source_cursor.cpp
+						"<(mongo_src_dir)/db/query/type_explain.h",				# Try to remove.  included by document_source_cursor.cpp
 					]
 			},
+			# TODO this is required by document_source_cursor.cpp, mongo/db/client.h
+			#            and we should mock out the functionality we need.
+			{
+				"destination": "<(mongo_dest_dir)/db/stats",
+				"files": [
+						"<(mongo_src_dir)/db/stats/top.h",
+					]
+			},
+			# --- document_source_cursor.cpp stuff to remove.
+			# TODO this is required by document_source_cursor.cpp, mongo/db/curop.h
+			#            and we should mock out the functionality we need.
+			{
+				"destination": "<(mongo_dest_dir)/db/structure/catalog",
+				"files": [
+						"<(mongo_src_dir)/db/structure/catalog/namespace.h",
+						"<(mongo_src_dir)/db/structure/catalog/namespace-inl.h",
+					]
+			},
+			# --- document_source_cursor.cpp stuff to remove.
 			{
 				"destination": "<(mongo_dest_dir)/scripting",
 				"files": [
