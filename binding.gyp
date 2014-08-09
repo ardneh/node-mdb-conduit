@@ -68,6 +68,7 @@
 			"-Wno-ignored-qualifiers", "-Wno-extra",
 			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
 		],
+		"defines": [ "MONGO_EXPOSE_MACROS=1" ],
 		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
 		"conditions": [
 			["OS=='mac'", {

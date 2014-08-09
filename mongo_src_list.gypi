@@ -20,7 +20,7 @@
 "build/Release/obj.target/mongo/base/string_data.cpp",
 #"build/Release/obj.target/mongo/base/string_data_test.cpp",
 "build/Release/obj.target/mongo/base/error_codes.cpp",
-"build/Release/obj.target/mongo/bson/bsondemo/bsondemo.cpp",
+#"build/Release/obj.target/mongo/bson/bsondemo/bsondemo.cpp",
 "build/Release/obj.target/mongo/bson/mutable/document.cpp",
 "build/Release/obj.target/mongo/bson/mutable/element.cpp",
 #"build/Release/obj.target/mongo/bson/mutable/mutable_bson_algo_test.cpp",

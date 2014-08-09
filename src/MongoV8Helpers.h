@@ -20,7 +20,7 @@
 
 #include <boost/smart_ptr/scoped_ptr.hpp>
 
-#include <mongo/bson/bson.h>
+#include <mongo/db/jsobj.h>
 //#include <mongo/bson/bsonobjbuilder.h>
 
 #include "mongo/util/concurrency/mutex.h"
@@ -124,7 +124,7 @@ namespace not_mongo {
     };
 
     /**
-     * 
+     *
      *
      */
     class MongoV8Helpers : boost::noncopyable {
