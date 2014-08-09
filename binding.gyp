@@ -148,7 +148,11 @@
 						"<(mongo_src_dir)/util/paths.h",		# Seems like this is a reasonable dependency.
 						"<(mongo_src_dir)/util/progress_meter.h",
 						# --- document_source_cursor.cpp stuff to remove.
-
+						"<(mongo_src_dir)/util/stringutils.h",
+						"<(mongo_src_dir)/util/embedded_builder.h",
+						"<(mongo_src_dir)/util/md5.h",
+						"<(mongo_src_dir)/util/md5.hpp",
+						"<(mongo_src_dir)/util/startup_test.h",		# This seems like an odd requirement for jsobj.cpp
 					]
 			},
 			{
@@ -271,6 +275,7 @@
 						"<(mongo_src_dir)/db/curop-inl.h",
 						"<(mongo_src_dir)/db/curop.h",
 						# --- document_source_cursor.cpp stuff to remove.
+						"<(mongo_src_dir)/db/commands.h", # TODO this is required by pipeline.cpp Mock or make it optional.
 					]
 			},
 			{
@@ -307,7 +312,30 @@
 						"<(mongo_src_dir)/db/structure/catalog/namespace-inl.h",
 					]
 			},
-			# --- document_source_cursor.cpp stuff to remove.
+			# TODO this is required by pipeline.cpp Mock out the bits we need
+			#				 or split pipelne.cpp up (might have our own version).
+			{
+				"destination": "<(mongo_dest_dir)/db/auth",
+				"files": [
+						"<(mongo_src_dir)/db/auth/action_set.h",
+						"<(mongo_src_dir)/db/auth/privilege.h",
+						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.h",		# TODO FIX ME!!!  Need to have the mongo build generate this.
+						"<(mongo_src_dir)/db/auth/privilege_parser.h",
+						"<(mongo_src_dir)/db/auth/resource_pattern.h",
+					]
+			},			# --- pipeline.cpp stuff to mock.
+			# TODO this is required by pipeline_d.cpp Mock out the bits we need
+			#				 or split pipelne.cpp up (might have our own version).
+			#{
+			#	"destination": "<(mongo_dest_dir)/db/catalog",
+			#	"files": [
+			#			"<(mongo_src_dir)/db/catalog/collection.h",
+			#			"<(mongo_src_dir)/db/catalog/collection_cursor_cache.h",
+			#			"<(mongo_src_dir)/db/catalog/index_catalog.h",
+			#			"<(mongo_src_dir)/db/catalog/index_catalog_entry.h",
+			#			"<(mongo_src_dir)/db/catalog/index_pregen.h",
+			#		]
+			#},		# pipeline_d.cpp stuff to get rid of.
 			{
 				"destination": "<(mongo_dest_dir)/scripting",
 				"files": [

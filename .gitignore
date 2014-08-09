@@ -3,6 +3,7 @@
 /src/mongo
 *.swp
 
+npm-debug.log
 /bin
 /include
 /share

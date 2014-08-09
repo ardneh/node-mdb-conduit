@@ -86,7 +86,7 @@
 "build/Release/obj.target/mongo/db/pipeline/expression.cpp",
 "build/Release/obj.target/mongo/db/pipeline/field_path.cpp",
 "build/Release/obj.target/mongo/db/pipeline/pipeline.cpp",
-"build/Release/obj.target/mongo/db/pipeline/pipeline_d.cpp",
+# "build/Release/obj.target/mongo/db/pipeline/pipeline_d.cpp",  # Includes a bunch of server side stuff, try to not include it.
 "build/Release/obj.target/mongo/db/pipeline/value.cpp",
 "build/Release/obj.target/mongo/db/jsobj.cpp",
 "build/Release/obj.target/mongo/db/dbmessage.cpp",
@@ -94,11 +94,11 @@
 "build/Release/obj.target/mongo/util/intrusive_counter.cpp",
 "build/Release/obj.target/mongo/util/debug_util.cpp",
 "build/Release/obj.target/mongo/util/time_support.cpp",
-"build/Release/obj.target/mongo/util/thread_name.cpp",
+#"build/Release/obj.target/mongo/util/thread_name.cpp", 	# Causing linker errors.
 "build/Release/obj.target/mongo/util/hex.cpp",
 "build/Release/obj.target/mongo/util/concurrency/thread_name.cpp",
-"build/Release/obj.target/mongo/util/net/message.cpp",
-"build/Release/obj.target/mongo/util/net/message_port.cpp",
+#"build/Release/obj.target/mongo/util/net/message.cpp",		# Doesn't seem like we should need this.
+#"build/Release/obj.target/mongo/util/net/message_port.cpp",	# Doesn't seem like we should need this.
 ]
 }
 }
