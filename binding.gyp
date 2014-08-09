@@ -135,6 +135,8 @@
 						"<(mongo_src_dir)/util/string_map.h",
 						"<(mongo_src_dir)/util/unordered_fast_key_table.h",
 						"<(mongo_src_dir)/util/unordered_fast_key_table_internal.h",
+						"<(mongo_src_dir)/util/text.h",
+						"<(mongo_src_dir)/util/base64.h",
 					]
 			},
 			{
@@ -178,6 +180,7 @@
 						'<(mongo_src_dir)/client/dbclientinterface.h',
 						'<(mongo_src_dir)/client/dbclientcursor.h',
 						'<(mongo_src_dir)/client/syncclusterconnection.h',
+						'<(mongo_src_dir)/client/dbclient_rs.h',
 					]
 			},
 			{
@@ -244,6 +247,12 @@
 						"<(mongo_src_dir)/db/query/runner.h",
 						"<(mongo_src_dir)/db/query/canonical_query.h",
 						"<(mongo_src_dir)/db/query/parsed_projection.h",
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/scripting",
+				"files": [
+						"<(mongo_src_dir)/scripting/v8_utils.h",
 					]
 			},
 			{
