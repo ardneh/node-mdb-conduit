@@ -99,6 +99,14 @@
 "build/Release/obj.target/mongo/util/concurrency/thread_name.cpp",
 #"build/Release/obj.target/mongo/util/net/message.cpp",		# Doesn't seem like we should need this.
 #"build/Release/obj.target/mongo/util/net/message_port.cpp",	# Doesn't seem like we should need this.
+
+# Everything below was added to resolve missing symbol errors at runtime.
+"build/Release/obj.target/mongo/util/assert_util.cpp",		# DBException
+"build/Release/obj.target/mongo/util/stacktrace.cpp",		# Needed by DBException.
+"build/Release/obj.target/mongo/util/startup_test.cpp",		# StartupTest.
+"build/Release/obj.target/mongo/db/storage_options.cpp",	# storageGlobalParams
+"build/Release/obj.target/mongo/db/server_parameters.cpp",	# Needed by storage_options.cpp
+"build/Release/obj.target/mongo/client/replica_set_monitor.h",	# Needed by storage_options.cpp
 ]
 }
 }

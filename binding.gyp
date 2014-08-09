@@ -153,6 +153,11 @@
 						"<(mongo_src_dir)/util/md5.h",
 						"<(mongo_src_dir)/util/md5.hpp",
 						"<(mongo_src_dir)/util/startup_test.h",		# This seems like an odd requirement for jsobj.cpp
+						"<(mongo_src_dir)/util/stacktrace.h",			# Needed by DBException
+
+						# Load.
+						"<(mongo_src_dir)/util/assert_util.cpp",	# Needed to fix missing DBException on load.
+						"<(mongo_src_dir)/util/startup_test.cpp",	# Needed to fix missing StartupTest on load.
 					]
 			},
 			{
@@ -204,6 +209,11 @@
 						'<(mongo_src_dir)/client/dbclientcursor.h',
 						'<(mongo_src_dir)/client/syncclusterconnection.h',
 						'<(mongo_src_dir)/client/dbclient_rs.h',
+
+						# Load.
+						'<(mongo_src_dir)/client/replica_set_monitor.h',
+						#'<(mongo_src_dir)/client/replica_set_monitor.cpp',
+						'<(mongo_src_dir)/client/replica_set_monitor_internal.h',
 					]
 			},
 			{
@@ -276,6 +286,12 @@
 						"<(mongo_src_dir)/db/curop.h",
 						# --- document_source_cursor.cpp stuff to remove.
 						"<(mongo_src_dir)/db/commands.h", # TODO this is required by pipeline.cpp Mock or make it optional.
+
+						# Load
+						"<(mongo_src_dir)/db/storage_options.cpp", # storageOptions
+						"<(mongo_src_dir)/db/server_parameters.h", # Needed by storage_options.cinepp
+						"<(mongo_src_dir)/db/server_parameters.cpp", # Needed by storage_options.cpp
+						"<(mongo_src_dir)/db/server_parameters_inline.h", # Needed by storage_options.cpp
 					]
 			},
 			{
