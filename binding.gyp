@@ -2,6 +2,9 @@
 # * mongo/base/error_codes.h
 
 {
+	"includes": [
+		"mongo_src_list.gypi",
+	],
 	"target_defaults": {
 		"configurations": {
 			"Debug": {  # TODO: figure out how to get this working!
@@ -24,14 +27,65 @@
 	#}, {
 	#	"target_name": "clone_mongo_cxx_driver", # TODO: for the json->bson parser :)  Assumes it will not be in the mongo src for much longer.
 	#}, {
-		"target_name": "copy_mongo_files",
-      'type': 'none',
-      'dependencies': [], # 'clone_mongo_src'
+		"target_name": "mungedb-aggregate-native",
 		"variables": {
 			"mongo_src_dir": "src/third-party/mongo/src/mongo",
-			"mongo_dest_dir": "<(LIB_DIR)/mongo",
+			"third_party_src_dir": "src/third-party/mongo/src/third_party",
+			"third_party_dest_dir": "<(LIB_DIR)/third_party",
+			# GRRR.
+			"mongo_dest_dir": "build/Release/obj.target/mongo", # "<(LIB_DIR)/mongo",
+			"boost_dir": "src/third-party/mongo/src/third_party/boost",
+			"our_dir": "<(module_root_dir)", # TODO: use
 		},
-      'copies': [
+		"include_dirs": [
+			"src",
+			"<(LIB_DIR)",
+			"<(boost_dir)",
+			"<(mongo_dest_dir)",
+		],
+		"sources": [
+			# Our stuff.
+			"src/Pipeline.cpp",
+			"src/mongo-ours/db/interrupt_status_noop.cpp",
+			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
+			"src/MongoV8Helpers.cpp",
+
+			# Mongo's stuff.
+			'<@(mongo_src_files)',
+			#'<!@(bash -c "find build/Release/obj.target/mongo -name \"*.cpp\" || true")',
+			#'<(mongo_dest_dir)/pch.cpp',
+			#'>!@(ls -1m build/Release/obj.target/mongo/bson/*.cpp',
+			#">!@(ls -1 >(mongo_dest_dir)/db/pipeline/*.cpp)",
+			#'>!@(ls -1 >(mongo_dest_dir)/base/*.cpp)',
+			#'<(mongo_dest_dir)/util/intrusive_counter.cpp',
+			#'<(mongo_dest_dir)/db/query/lite_parsed_query.cpp',
+		],
+		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
+		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
+		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
+		# TEMP TODO: make sure we are using the same allocator.
+		"cflags": [
+			"-Wno-ignored-qualifiers", "-Wno-extra",
+			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
+		],
+		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
+		"conditions": [
+			["OS=='mac'", {
+				#"variables": {
+				#	"mongo_build_name": "darwin",
+				#},
+				"xcode_settings": {
+					"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+					"GCC_ENABLE_CPP_RTTI": "YES"
+				}
+			}],
+			["OS=='linux'", {
+				#"variables": {
+				#	"mongo_build_name": "linux",
+				#}
+			}]
+		],
+		'copies': [
 			# Note: a ton of these just came from lite_parsed_query.*
 			{
 				'destination': '<(mongo_dest_dir)',
@@ -72,6 +126,15 @@
 						"<(mongo_src_dir)/util/hex.h",
 						"<(mongo_src_dir)/util/hex.cpp",
 						"<(mongo_src_dir)/util/bufreader.h",
+
+						# Compile.
+						"<(mongo_src_dir)/util/timer.h",
+						"<(mongo_src_dir)/util/timer-inl.h",
+						"<(mongo_src_dir)/util/timer-generic-inl.h",
+						"<(mongo_src_dir)/util/background.h",
+						"<(mongo_src_dir)/util/string_map.h",
+						"<(mongo_src_dir)/util/unordered_fast_key_table.h",
+						"<(mongo_src_dir)/util/unordered_fast_key_table_internal.h",
 					]
 			},
 			{
@@ -109,6 +172,12 @@
 						'<(mongo_src_dir)/client/undef_macros.h',
 						'<(mongo_src_dir)/client/redef_macros.h',
 						'<(mongo_src_dir)/client/export_macros.h',
+
+						# compile.
+						'<(mongo_src_dir)/client/connpool.h',
+						'<(mongo_src_dir)/client/dbclientinterface.h',
+						'<(mongo_src_dir)/client/dbclientcursor.h',
+						'<(mongo_src_dir)/client/syncclusterconnection.h',
 					]
 			},
 			{
@@ -119,187 +188,71 @@
 					]
 			},
 			{
+				"destination": "<(mongo_dest_dir)/s",
+				"files": [
+						# Compile.
+						'<(mongo_src_dir)/s/collection_metadata.h',
+						'<(mongo_src_dir)/s/chunk_version.h',
+						'<(mongo_src_dir)/s/bson_serializable.h',
+						'<(mongo_src_dir)/s/range_arithmetic.h',
+						'<(mongo_src_dir)/s/type_chunk.h',
+						'<(mongo_src_dir)/s/shard.h',
+						'<(mongo_src_dir)/s/strategy.h',
+						'<(mongo_src_dir)/s/chunk.h',
+						'<(mongo_src_dir)/s/distlock.h',
+						'<(mongo_src_dir)/s/shardkey.h',
+						'<(mongo_src_dir)/s/shard_key_pattern.h',
+						'<(mongo_src_dir)/s/request.h',
+						'<(mongo_src_dir)/s/config.h',
+					]
+			},
+			{
 				"destination": "<(mongo_dest_dir)/db",
 				"files": [
+						# include.
 						"<(mongo_src_dir)/db/jsobj.h",
 						"<(mongo_src_dir)/db/jsobj.cpp",
 						"<(mongo_src_dir)/db/dbmessage.h",
 						"<(mongo_src_dir)/db/dbmessage.cpp",
+
+						# compile.
+						"<(mongo_src_dir)/db/interrupt_status.h",
+						"<(mongo_src_dir)/db/namespace_string.h",
+						"<(mongo_src_dir)/db/namespace_string-inl.h",
+						"<(mongo_src_dir)/db/clientcursor.h",
+						"<(mongo_src_dir)/db/diskloc.h",
+						"<(mongo_src_dir)/db/keypattern.h",
+						"<(mongo_src_dir)/db/field_ref.h",
+						"<(mongo_src_dir)/db/matcher",
+						"<(mongo_src_dir)/db/invalidation_type.h",
+						"<(mongo_src_dir)/db/field_ref_set.h",
+						"<(mongo_src_dir)/db/matcher.h",
+						"<(mongo_src_dir)/db/projection.h",
+						"<(mongo_src_dir)/db/sorter",
+						"<(mongo_src_dir)/db/json.h",
 					]
 			},
 			{
 				# Part of mongoscore lib and used by pipeline.cpp.
 				"destination": "<(mongo_dest_dir)/db/query",
 				"files": [
+						# include.
 						"<(mongo_src_dir)/db/query/lite_parsed_query.cpp",
 						"<(mongo_src_dir)/db/query/lite_parsed_query.h",
+
+						# Compile
+						"<(mongo_src_dir)/db/query/runner.h",
+						"<(mongo_src_dir)/db/query/canonical_query.h",
+						"<(mongo_src_dir)/db/query/parsed_projection.h",
 					]
-			}
-		]},{
-			# See https://code.google.com/p/gyp/wiki/GypUserDocumentation#Skeleton_of_a_typical_library_target_in_a_.gyp_file
-			"target_name": "pipeline",
-			'type': '<(library)',
-			'dependencies': ['copy_mongo_files'],
-			"variables": {
-				"mongo_dest_dir": "<(LIB_DIR)/mongo",
-				"boost_dir": "src/third-party/mongo/src/third_party/boost",
-			},
-			"sources": [
-				'<(mongo_dest_dir)/pch.cpp',
-				'!@(ls -1 <(mongo_dest_dir)/bson/*.cpp)',
-				'!@(ls -1 <(mongo_dest_dir)/db/pipeline/*.cpp)',
-				'!@(ls -1 <(mongo_dest_dir)/base/*.cpp)',
-				'<(mongo_dest_dir)/util/intrusive_counter.cpp',
-				'<(mongo_dest_dir)/db/query/lite_parsed_query.cpp',
-			],
-			"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
-			"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
-			# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
-			# TEMP TODO: make sure we are using the same allocator.
-			"cflags": [
-				"-Wno-ignored-qualifiers", "-Wno-extra",
-				"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
-			],
-			"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
-			"conditions": [
-				["OS=='mac'", {
-					#"variables": {
-					#	"mongo_build_name": "darwin",
-					#},
-					"xcode_settings": {
-						"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-						"GCC_ENABLE_CPP_RTTI": "YES"
-					}
-				}],
-				["OS=='linux'", {
-					#"variables": {
-					#	"mongo_build_name": "linux",
-					#}
-				}]
-			],
-			"include_dirs": [
-				"<(LIB_DIR)",
-				"<(mongo_dest_dir)",
-				"<(boost_dir)",
-			],
-		},{
-		"target_name": "mungedb-aggregate-native",
-		'dependencies': ['pipeline'],
-		"sources": [
-			"src/Pipeline.cpp",
-			"src/mongo-ours/db/interrupt_status_noop.cpp",
-			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
-			"src/MongoV8Helpers.cpp",
-		],
-		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
-		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
-		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
-		# TEMP TODO: make sure we are using the same allocator.
-		"cflags": [
-			"-Wno-ignored-qualifiers", "-Wno-extra",
-			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
-		],
-		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
-		"variables": {
-			"our_dir": "<(module_root_dir)", # TODO: use a pre-defined variable.  It doesn't look like gyp provides one?
-			"third_party_dir": "<(our_dir)/src/third-party",
-			"mongo_dir": "<(third_party_dir)/mongo",
-			"mongo_build_type": "normal",
-			#"mongo_build_type": "d",
-			"mongo_build_name": "<!(python bin/get_mongo_platform.py)",
-			"mongo_build_dir": "<(mongo_dir)/build/<(mongo_build_name)/<(mongo_build_type)",
-		},
-		"copies__": [
-			{
-				"destination": "src/mongo/util",
-				"files": [
-					"<(mongo_dir)/src/mongo/util/intrusive_counter.cpp"
-				]
 			},
 			{
-				"destination": "src/mongo/base",
+				"destination": "<(third_party_dest_dir)",
 				"files": [
-					"<(mongo_dir)/src/mongo/base/init.cpp"
-				]
+						# Compile
+						"<(third_party_src_dir)/murmurhash3",
+					]
 			},
-			{
-				# Part of mongoscore lib and used by pipeline.cpp.
-				"destination": "src/mongo/db/query",
-				"files": [
-					"<(mongo_dir)/src/mongo/db/query/lite_parsed_query.cpp"
-				]
-			}
-
-			# TODO: copy over the files in db/pipeline that we need (and provide a way to apply patches on them if necessary).
-		],
-		"conditions": [
-			["OS=='mac'", {
-				#"variables": {
-				#	"mongo_build_name": "darwin",
-				#},
-				"xcode_settings": {
-					"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-					"GCC_ENABLE_CPP_RTTI": "YES"
-				}
-			}],
-			["OS=='linux'", {
-				#"variables": {
-				#	"mongo_build_name": "linux",
-				#}
-			}]
-		],
-		"include_dirs": [
-			"src",
-			"src/third-party",
-			"<(mongo_dir)/src/third_party",
-			"<(mongo_dir)/src/third_party/boost",
-			"<(mongo_dir)/src",
-			"<(mongo_dir)/src/mongo/",  # The pipeline files do include "bson/"
-			"<(mongo_build_dir)"
-		],
-		"libraries": [
-			"-lpipeline",
-		],
-		"libraries__": [
-			"-lbson",
-			"-lbase",				# Needed for initializers that are used to add all of the expressions at startup.
-			"-lexpressions",		# $match.  mongo/db/matcher/expression_parser.cpp, and probably mongo/db/matcher/expression_parser_tree.cpp
-			"-lpcrecpp",			# $match via expressions parser.
-			"-lpath",				# dyn failure after adding $match stuff.
-			"-lcommon",				# FieldRef::FieldRef dynamic lookup.  Not sure if $match needs this or not.
-			"-lcoredb",			# All of the pipeline stuff.
-			"-lfoundation",
-			"-lstringutils",
-			"-lplatform",
-			"-llogger",
-			"-lthread_name", # For logger.
-			"-llasterror", # For logger.
-			"-lstacktrace", # For logger.
-			"-lserver_parameters",  # Who knows, really need to get rid of this one.
-			"-lclientdriver",		# Another misc. dependency because of all the other libs I've pulled in.
-			"-lbackground_job",		# Yay for everything!
-			"-lserver_options_core",# Another misc.
-			"-lspin_lock",# Another misc.
-			"-lnetwork",# Another misc.
-			"-lfail_point",# Required by lnetwork
-			"-lcoreserver",
-			"-lboost_system",
-			"-lboost_thread",
-			"-lmurmurhash3", # Needed by -lbase and intializer stuff.
-			"-L<(mongo_build_dir)/mongo",
-			"-L<(mongo_build_dir)/mongo/base",
-			"-L<(mongo_build_dir)/mongo/platform",
-			"-L<(mongo_build_dir)/mongo/logger",
-			"-L<(mongo_build_dir)/mongo/db",
-			"-L<(mongo_build_dir)/mongo/util",
-			"-L<(mongo_build_dir)/mongo/util/concurrency",
-			"-L<(mongo_build_dir)/third_party/boost",
-			"-L<(mongo_build_dir)/third_party/murmurhash3",
-			"-L<(mongo_build_dir)/third_party/pcre-8.30",
-
-			# TODO: Get rid of this!  should not need any auth.
-			"-lauthcore",
-			"-L<(mongo_build_dir)/mongo/db/auth"
 		]
-	}]
+	}]  # End targets.
 }
