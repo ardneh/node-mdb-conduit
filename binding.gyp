@@ -112,6 +112,7 @@
 						'<(mongo_src_dir)/db/pipeline',
 						'<(mongo_src_dir)/db/server_options.h',
 						'<(mongo_src_dir)/db/server_options.h',
+						'<(mongo_src_dir)/db/client.cpp',
 					],
 			},
 			{
@@ -164,6 +165,10 @@
 						"<(mongo_src_dir)/util/startup_test.cpp",	# Needed to fix missing StartupTest on load.
 						"<(mongo_src_dir)/util/background.cpp",	# PeriodicTask
 						"<(mongo_src_dir)/util/password_digest.h",
+						"<(mongo_src_dir)/util/util.cpp",
+						"<(mongo_src_dir)/util/mmap.h",
+						"<(mongo_src_dir)/util/admin_access.h",		# client.cpp
+						"<(mongo_src_dir)/util/file_allocator.h",		# client.cpp
 					]
 			},
 			{
@@ -181,6 +186,13 @@
 						"<(mongo_src_dir)/util/concurrency/simplerwlock.h",
 						"<(mongo_src_dir)/util/concurrency/spin_lock.h",
 						# --- document_source_cursor.cpp stuff to remove.
+						"<(mongo_src_dir)/util/concurrency/list.h",								# client.cpp
+						"<(mongo_src_dir)/util/concurrency/race.h",							# client.cpp
+						"<(mongo_src_dir)/util/concurrency/mutexdebugger.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/value.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/thread_pool.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/msg.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/task.h",	# client.cpp
 					]
 			},
 			{
@@ -204,6 +216,9 @@
 				"destination": "<(mongo_dest_dir)/util/mongoutils",
 				"files": [
 						"<(mongo_src_dir)/util/mongoutils/str.h",
+
+						# Loading.
+						"<(mongo_src_dir)/util/mongoutils/checksum.h",
 					]
 			},
 			{
@@ -310,6 +325,15 @@
 						"<(mongo_src_dir)/db/server_parameters_inline.h", # Needed by storage_options.cpp
 						"<(mongo_src_dir)/db/field_parser.h",
 						"<(mongo_src_dir)/db/field_parser-inl.h",
+						"<(mongo_src_dir)/db/db.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/index_names.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/dur.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/update_index_data.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/pdfile.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/pdfile_version.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/kill_current_op.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/dbwebserver.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/pagefault.h",	# client.cpp again.
 					]
 			},
 			{
@@ -327,6 +351,14 @@
 						"<(mongo_src_dir)/db/query/find_constants.h",				# Remove? included by document_source_cursor.cpp
 						"<(mongo_src_dir)/db/query/type_explain.h",				# Try to remove.  included by document_source_cursor.cpp
 						"<(mongo_src_dir)/db/query/type_explain.cpp",
+						"<(mongo_src_dir)/db/query/plan_cache.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/stage_types.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/index_tag.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/lru_key_value.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/query_planner_params.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/index_entry.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/query_knobs.h",		# client.cpp
+						"<(mongo_src_dir)/db/query/query_settings.h",		# client.cpp
 					]
 			},
 			# TODO this is required by document_source_cursor.cpp, mongo/db/client.h
@@ -343,8 +375,70 @@
 			{
 				"destination": "<(mongo_dest_dir)/db/structure/catalog",
 				"files": [
+					# Loading.
 						"<(mongo_src_dir)/db/structure/catalog/namespace.h",
 						"<(mongo_src_dir)/db/structure/catalog/namespace-inl.h",
+						"<(mongo_src_dir)/db/structure/catalog/namespace_details.h",  # client.cpp
+						"<(mongo_src_dir)/db/structure/catalog/index_details.h",  # client.cpp
+						"<(mongo_src_dir)/db/structure/catalog/namespace_index.h",	# client.cpp
+						"<(mongo_src_dir)/db/structure/catalog/hashtab.h",	# client.cpp
+						"<(mongo_src_dir)/db/structure/catalog/namespace_details-inl.h",  # client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/structure/btree",
+				"files": [
+						"<(mongo_src_dir)/db/structure/btree/key.h",	# client.cpp ?
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/repl",
+				"files": [
+						"<(mongo_src_dir)/db/repl/rs.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/oplogreader.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/rs_config.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/health.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/rs_exception.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/rs_member.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/rs_sync.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/sync.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/sync_source_feedback.h",			# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/index",
+				"files": [
+						"<(mongo_src_dir)/db/index/index_descriptor.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/exec",
+				"files": [
+						"<(mongo_src_dir)/db/exec/collection_scan_common.h",		# client.cpp
+						"<(mongo_src_dir)/db/exec/plan_stats.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/geo",
+				"files": [
+						"<(mongo_src_dir)/db/geo/hash.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/structure",
+				"files": [
+						"<(mongo_src_dir)/db/structure/record_store.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/storage",
+				"files": [
+						# Loading
+						"<(mongo_src_dir)/db/storage/durable_mapped_file.h",	# client.cpp
+						"<(mongo_src_dir)/db/storage/extent_manager.h",				# client.cpp
+						"<(mongo_src_dir)/db/storage/record.h",				# client.cpp
+						"<(mongo_src_dir)/db/storage/extent.h",				# client.cpp
+						"<(mongo_src_dir)/db/storage/data_file.h",				# client.cpp
 					]
 			},
 			# TODO this is required by pipeline.cpp Mock out the bits we need
@@ -361,25 +455,40 @@
 
 						# Load.
 						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.cpp",	# TODO FIX ME!!!  Need to have the mongo build generate this.
-						#"<(mongo_src_dir)/db/auth/action_set.cpp",
+						"<(mongo_src_dir)/db/auth/authorization_manager_global.h", # Most of these are included by client.cpp
+						"<(mongo_src_dir)/db/auth/authorization_manager.h",
+						"<(mongo_src_dir)/db/auth/role_graph.h",
+						"<(mongo_src_dir)/db/auth/role_name.h",
+						"<(mongo_src_dir)/db/auth/user.h",
+						"<(mongo_src_dir)/db/auth/user_name.h",
+						"<(mongo_src_dir)/db/auth/user_name_hash.h",
+						"<(mongo_src_dir)/db/auth/authorization_session.h",
+						"<(mongo_src_dir)/db/auth/authz_session_external_state.h",
+						"<(mongo_src_dir)/db/auth/user_set.h",
+						"<(mongo_src_dir)/db/auth/authz_session_external_state_d.h",
+						"<(mongo_src_dir)/db/auth/authz_session_external_state_server_common.h",
 					]
 			},			# --- pipeline.cpp stuff to mock.
 			# TODO this is required by pipeline_d.cpp Mock out the bits we need
 			#				 or split pipelne.cpp up (might have our own version).
-			#{
-			#	"destination": "<(mongo_dest_dir)/db/catalog",
-			#	"files": [
+			{
+				"destination": "<(mongo_dest_dir)/db/catalog",
+				"files": [
+						"<(mongo_src_dir)/db/catalog/database_holder.h",  # client.cpp
+						"<(mongo_src_dir)/db/catalog/database.h",  # client.cpp
+						"<(mongo_src_dir)/db/catalog/collection_info_cache.h",  # client.cpp
 			#			"<(mongo_src_dir)/db/catalog/collection.h",
 			#			"<(mongo_src_dir)/db/catalog/collection_cursor_cache.h",
 			#			"<(mongo_src_dir)/db/catalog/index_catalog.h",
 			#			"<(mongo_src_dir)/db/catalog/index_catalog_entry.h",
 			#			"<(mongo_src_dir)/db/catalog/index_pregen.h",
-			#		]
-			#},		# pipeline_d.cpp stuff to get rid of.
+					]
+			},		# pipeline_d.cpp stuff to get rid of.
 			{
 				"destination": "<(mongo_dest_dir)/scripting",
 				"files": [
 						"<(mongo_src_dir)/scripting/v8_utils.h",
+						"<(mongo_src_dir)/scripting/engine.h",		# client.cpp
 					]
 			},
 			{

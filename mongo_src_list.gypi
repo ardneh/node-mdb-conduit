@@ -116,6 +116,8 @@
 "build/Release/obj.target/mongo/client/dbclient.cpp",		#
 "build/Release/obj.target/mongo/db/query/type_explain.cpp",
 "build/Release/obj.target/mongo/client/sasl_client_authenticate.cpp",
+"build/Release/obj.target/mongo/util/util.cpp",		# PeriodicTask
+"build/Release/obj.target/mongo/db/client.cpp",		#
 ]
 }
 }
