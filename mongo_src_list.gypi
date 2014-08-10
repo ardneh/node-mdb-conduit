@@ -35,7 +35,7 @@
 #"build/Release/obj.target/mongo/bson/bson_validate_test.cpp",
 #"build/Release/obj.target/mongo/bson/bsonobjbuilder_test.cpp",
 "build/Release/obj.target/mongo/bson/oid.cpp",
-#"build/Release/obj.target/mongo/bson/optime.cpp",
+"build/Release/obj.target/mongo/bson/optime.cpp",
 "build/Release/obj.target/mongo/pch.cpp",
 #"build/Release/obj.target/mongo/platform/atomic_word_test.cpp",
 "build/Release/obj.target/mongo/platform/backtrace.cpp",
@@ -56,7 +56,7 @@
 "build/Release/obj.target/mongo/logger/message_event_utf8_encoder.cpp",
 "build/Release/obj.target/mongo/logger/message_log_domain.cpp",
 #"build/Release/obj.target/mongo/logger/ramlog.cpp", # Includes util/mongoutils/html.h, trying to skip.
-#"build/Release/obj.target/mongo/logger/rotatable_file_manager.cpp", # Includes mongo/util/map_util.h, trying to skip.
+"build/Release/obj.target/mongo/logger/rotatable_file_manager.cpp", # Includes mongo/util/map_util.h, trying to skip.
 #"build/Release/obj.target/mongo/logger/rotatable_file_writer.cpp", # Part of rotatable_file_manager.cpp ?
 #"build/Release/obj.target/mongo/logger/rotatable_file_writer_test.cpp",
 "build/Release/obj.target/mongo/db/pipeline/accumulator_add_to_set.cpp",
@@ -117,8 +117,16 @@
 "build/Release/obj.target/mongo/db/query/type_explain.cpp",
 "build/Release/obj.target/mongo/client/sasl_client_authenticate.cpp",
 "build/Release/obj.target/mongo/util/util.cpp",		# PeriodicTask
-"build/Release/obj.target/mongo/db/client.cpp",		#
+#"build/Release/obj.target/mongo/db/client.cpp",		#
+#"build/Release/obj.target/mongo/db/client_basic.cpp",		#
+#"build/Release/obj.target/mongo/db/commands.cpp",		# Load.
+#"build/Release/obj.target/mongo/db/lasterror.cpp",		# Load.
+"build/Release/obj.target/mongo/util/log.cpp",		# Load.
+#"build/Release/obj.target/mongo/db/repl/rs.cpp",		# Load.
+#"build/Release/obj.target/mongo/s/d_state.cpp",		# Load: shardingState
+"build/Release/obj.target/mongo/db/server_options.cpp",		# Load: serverGlobalOptions.
+"build/Release/obj.target/mongo/util/timer.cpp",		# Timer::_countsPerSecond
+"build/Release/obj.target/mongo/util/net/sock.cpp",		# vtable SocketException
 ]
 }
 }
-

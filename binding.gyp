@@ -111,8 +111,8 @@
 				'files': [
 						'<(mongo_src_dir)/db/pipeline',
 						'<(mongo_src_dir)/db/server_options.h',
-						'<(mongo_src_dir)/db/server_options.h',
-						'<(mongo_src_dir)/db/client.cpp',
+						'<(mongo_src_dir)/db/server_options.cpp',
+						#'<(mongo_src_dir)/db/client.cpp',
 					],
 			},
 			{
@@ -169,6 +169,13 @@
 						"<(mongo_src_dir)/util/mmap.h",
 						"<(mongo_src_dir)/util/admin_access.h",		# client.cpp
 						"<(mongo_src_dir)/util/file_allocator.h",		# client.cpp
+						"<(mongo_src_dir)/util/log.cpp",		# Load.
+						"<(mongo_src_dir)/util/queue.h",		# rs.cpp.
+						"<(mongo_src_dir)/util/timer.cpp",		# Load: _countsPerSecond.
+						"<(mongo_src_dir)/util/map_util.h",		# rotatable_file_manager.cpp
+						"<(mongo_src_dir)/util/fail_point_service.h",		# sock.cpp
+						"<(mongo_src_dir)/util/fail_point_registry.h",		# sock.cpp
+						"<(mongo_src_dir)/util/fail_point.h",		# sock.cpp
 					]
 			},
 			{
@@ -210,7 +217,9 @@
 						# Load.
 						"<(mongo_src_dir)/util/net/ssl_manager.h",
 						"<(mongo_src_dir)/util/net/ssl_options.h",
-					]
+						"<(mongo_src_dir)/util/net/sock.cpp",		# vtable for SocketException
+						"<(mongo_src_dir)/util/net/socket_poll.h",		# sock.cpp
+						]
 			},
 			{
 				"destination": "<(mongo_dest_dir)/util/mongoutils",
@@ -276,6 +285,8 @@
 						'<(mongo_src_dir)/s/d_logic.h',
 						'<(mongo_src_dir)/s/stale_exception.h',
 						# End Another document_source_cursor.cpp thing to try to rem ove.
+						'<(mongo_src_dir)/s/d_state.cpp',		# Load: shardingState.
+						'<(mongo_src_dir)/s/metadata_loader.h',		# d_state.cpp
 					]
 			},
 			{
@@ -334,6 +345,12 @@
 						"<(mongo_src_dir)/db/kill_current_op.h",	# client.cpp again.
 						"<(mongo_src_dir)/db/dbwebserver.h",	# client.cpp again.
 						"<(mongo_src_dir)/db/pagefault.h",	# client.cpp again.
+						"<(mongo_src_dir)/db/client_basic.cpp",
+						"<(mongo_src_dir)/db/commands.cpp",	# Load.
+						"<(mongo_src_dir)/db/audit.h",		# commands.cpp
+						"<(mongo_src_dir)/db/lasterror.cpp",		# Load.
+						"<(mongo_src_dir)/db/dbhelpers.h",		# rs.cpp.
+						"<(mongo_src_dir)/db/wire_version.h",		# d_state.cpp.
 					]
 			},
 			{
@@ -403,6 +420,13 @@
 						"<(mongo_src_dir)/db/repl/rs_sync.h",			# client.cpp
 						"<(mongo_src_dir)/db/repl/sync.h",			# client.cpp
 						"<(mongo_src_dir)/db/repl/sync_source_feedback.h",			# client.cpp
+						"<(mongo_src_dir)/db/repl/rs.cpp",			# Load.
+						"<(mongo_src_dir)/db/repl/bgsync.h",			# rs.cpp.
+						"<(mongo_src_dir)/db/repl/connections.h",			# rs.cpp.
+						"<(mongo_src_dir)/db/repl/oplog.h",			# rs.cpp.
+						"<(mongo_src_dir)/db/repl/replication_server_status.h",			# rs.cpp.
+						"<(mongo_src_dir)/db/repl/is_master.h",			# d_state.cpp.
+						"<(mongo_src_dir)/db/repl/master_slave.h",			# d_state.cpp.
 					]
 			},
 			{
@@ -467,6 +491,8 @@
 						"<(mongo_src_dir)/db/auth/user_set.h",
 						"<(mongo_src_dir)/db/auth/authz_session_external_state_d.h",
 						"<(mongo_src_dir)/db/auth/authz_session_external_state_server_common.h",
+						"<(mongo_src_dir)/db/auth/authentication_session.h",	# client_basic.cpp
+						"<(mongo_src_dir)/db/auth/security_key.h",	# rs.cpp
 					]
 			},			# --- pipeline.cpp stuff to mock.
 			# TODO this is required by pipeline_d.cpp Mock out the bits we need
@@ -489,6 +515,14 @@
 				"files": [
 						"<(mongo_src_dir)/scripting/v8_utils.h",
 						"<(mongo_src_dir)/scripting/engine.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/logger",
+				"files": [
+						# Load: ~RotatableFileManager()
+						'<(mongo_src_dir)/logger/rotatable_file_manager.cpp',
+						'<(mongo_src_dir)/logger/rotatable_file_manager.h',
 					]
 			},
 			{

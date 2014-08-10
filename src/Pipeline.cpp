@@ -59,11 +59,16 @@ VersionManager versionManager;
 // Begin hacks to make sure the linker knows we actually use these.
 
 #include <mongo/db/matcher/expression_parser.h>
+#include <mongo/util/concurrency/threadlocal.h>  //TSP_DEFINE
 
 namespace mongo {
 
 	StatusWithMatchExpression (*weNeed_parse)(const BSONObj &) =
 	    &MatchExpressionParser::parse;
+
+	//To avoid linking in client.cpp which pulls in the kitchen sink.
+	class Client {};
+	TSP_DEFINE(Client, currentClient);
 }
 
 // Done with hacks... For now!
@@ -232,4 +237,5 @@ void init(Handle<Object> exports) {
                FunctionTemplate::New(aggregate)->GetFunction());
 }
 
+//TODO: use context aware version.
 NODE_MODULE(pipeline, init)
