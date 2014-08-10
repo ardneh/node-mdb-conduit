@@ -9,7 +9,7 @@
 
 // TODO: include the appropriate files.  Note: these are found in the
 // `foundation` library along with StartupTest.
-#define verify(x)                                                              \
+/*#define verify(x) \
   {}
 #define uassert(a, b, c)                                                       \
   {}
@@ -17,7 +17,7 @@
   {}
 #define dassert(a)                                                             \
   {} // src/mongo/util/assert_util.h
-
+*/
 #include "mongo/pch.h"
 
 #include "mongo/base/initializer.h" //runGlobalInitializers()
@@ -58,12 +58,12 @@ VersionManager versionManager;
 
 // Begin hacks to make sure the linker knows we actually use these.
 
-#include <db/matcher/expression_parser.h>
+#include <mongo/db/matcher/expression_parser.h>
 
 namespace mongo {
 
-StatusWithMatchExpression (*weNeed_parse)(const BSONObj &) =
-    &MatchExpressionParser::parse;
+	StatusWithMatchExpression (*weNeed_parse)(const BSONObj &) =
+	    &MatchExpressionParser::parse;
 }
 
 // Done with hacks... For now!

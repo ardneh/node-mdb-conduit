@@ -68,7 +68,7 @@
 			"-Wno-ignored-qualifiers", "-Wno-extra",
 			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
 		],
-		"defines": [ "MONGO_EXPOSE_MACROS=1" ],
+		"defines": [ "MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1" ],
 		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
 		"conditions": [
 			["OS=='mac'", {
@@ -158,6 +158,7 @@
 						# Load.
 						"<(mongo_src_dir)/util/assert_util.cpp",	# Needed to fix missing DBException on load.
 						"<(mongo_src_dir)/util/startup_test.cpp",	# Needed to fix missing StartupTest on load.
+						"<(mongo_src_dir)/util/background.cpp",	# PeriodicTask
 					]
 			},
 			{
@@ -180,6 +181,7 @@
 			{
 				"destination": "<(mongo_dest_dir)/util/net",
 				"files": [
+						# Compile.
 						"<(mongo_src_dir)/util/net/hostandport.h",
 						"<(mongo_src_dir)/util/net/message.h",
 						"<(mongo_src_dir)/util/net/message.cpp",
@@ -187,6 +189,9 @@
 						"<(mongo_src_dir)/util/net/sock.h",
 						"<(mongo_src_dir)/util/net/message_port.h",
 						"<(mongo_src_dir)/util/net/message_port.cpp",
+
+						# Load.
+						"<(mongo_src_dir)/util/net/ssl_manager.h",
 					]
 			},
 			{
@@ -214,6 +219,8 @@
 						'<(mongo_src_dir)/client/replica_set_monitor.h',
 						#'<(mongo_src_dir)/client/replica_set_monitor.cpp',
 						'<(mongo_src_dir)/client/replica_set_monitor_internal.h',
+						"<(mongo_src_dir)/client/dbclientcursor.cpp",	# DBClientCursor
+						"<(mongo_src_dir)/client/connpool.cpp",				# pool
 					]
 			},
 			{
@@ -333,11 +340,16 @@
 			{
 				"destination": "<(mongo_dest_dir)/db/auth",
 				"files": [
+						# Compile.
 						"<(mongo_src_dir)/db/auth/action_set.h",
 						"<(mongo_src_dir)/db/auth/privilege.h",
 						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.h",		# TODO FIX ME!!!  Need to have the mongo build generate this.
 						"<(mongo_src_dir)/db/auth/privilege_parser.h",
 						"<(mongo_src_dir)/db/auth/resource_pattern.h",
+
+						# Load.
+						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.cpp",	# TODO FIX ME!!!  Need to have the mongo build generate this.
+						#"<(mongo_src_dir)/db/auth/action_set.cpp",
 					]
 			},			# --- pipeline.cpp stuff to mock.
 			# TODO this is required by pipeline_d.cpp Mock out the bits we need

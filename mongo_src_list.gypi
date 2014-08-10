@@ -106,7 +106,13 @@
 "build/Release/obj.target/mongo/util/startup_test.cpp",		# StartupTest.
 "build/Release/obj.target/mongo/db/storage_options.cpp",	# storageGlobalParams
 "build/Release/obj.target/mongo/db/server_parameters.cpp",	# Needed by storage_options.cpp
-"build/Release/obj.target/mongo/client/replica_set_monitor.h",	# Needed by storage_options.cpp
+#"build/Release/obj.target/mongo/client/replica_set_monitor.cpp",	# Needed by storage_options.cpp
+"build/Release/obj.target/mongo/db/auth/action_type.cpp",		#
+#"build/Release/obj.target/mongo/db/auth/action_set.cpp",		#
+"build/Release/obj.target/mongo/client/dbclientcursor.cpp",	# DBClientCursor
+"build/Release/obj.target/mongo/client/connpool.cpp",		# pool
+"build/Release/obj.target/mongo/util/background.cpp",		# PeriodicTask
+#"build/Release/obj.target/mongo/util/net/ssl_manager.cpp",	# needed by background.cpp
 ]
 }
 }
