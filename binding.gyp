@@ -52,6 +52,10 @@
 
 			# Mongo's stuff.
 			'<@(mongo_src_files)',
+
+			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
+			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
+
 			#'<!@(bash -c "find build/Release/obj.target/mongo -name \"*.cpp\" || true")',
 			#'<(mongo_dest_dir)/pch.cpp',
 			#'>!@(ls -1m build/Release/obj.target/mongo/bson/*.cpp',
@@ -159,6 +163,7 @@
 						"<(mongo_src_dir)/util/assert_util.cpp",	# Needed to fix missing DBException on load.
 						"<(mongo_src_dir)/util/startup_test.cpp",	# Needed to fix missing StartupTest on load.
 						"<(mongo_src_dir)/util/background.cpp",	# PeriodicTask
+						"<(mongo_src_dir)/util/password_digest.h",
 					]
 			},
 			{
@@ -192,6 +197,7 @@
 
 						# Load.
 						"<(mongo_src_dir)/util/net/ssl_manager.h",
+						"<(mongo_src_dir)/util/net/ssl_options.h",
 					]
 			},
 			{
@@ -221,6 +227,9 @@
 						'<(mongo_src_dir)/client/replica_set_monitor_internal.h',
 						"<(mongo_src_dir)/client/dbclientcursor.cpp",	# DBClientCursor
 						"<(mongo_src_dir)/client/connpool.cpp",				# pool
+						'<(mongo_src_dir)/client/dbclient.cpp',
+						'<(mongo_src_dir)/client/sasl_client_authenticate.h',
+						'<(mongo_src_dir)/client/sasl_client_authenticate.cpp',
 					]
 			},
 			{
@@ -299,6 +308,8 @@
 						"<(mongo_src_dir)/db/server_parameters.h", # Needed by storage_options.cinepp
 						"<(mongo_src_dir)/db/server_parameters.cpp", # Needed by storage_options.cpp
 						"<(mongo_src_dir)/db/server_parameters_inline.h", # Needed by storage_options.cpp
+						"<(mongo_src_dir)/db/field_parser.h",
+						"<(mongo_src_dir)/db/field_parser-inl.h",
 					]
 			},
 			{
@@ -315,6 +326,7 @@
 						"<(mongo_src_dir)/db/query/parsed_projection.h",
 						"<(mongo_src_dir)/db/query/find_constants.h",				# Remove? included by document_source_cursor.cpp
 						"<(mongo_src_dir)/db/query/type_explain.h",				# Try to remove.  included by document_source_cursor.cpp
+						"<(mongo_src_dir)/db/query/type_explain.cpp",
 					]
 			},
 			# TODO this is required by document_source_cursor.cpp, mongo/db/client.h

@@ -113,6 +113,9 @@
 "build/Release/obj.target/mongo/client/connpool.cpp",		# pool
 "build/Release/obj.target/mongo/util/background.cpp",		# PeriodicTask
 #"build/Release/obj.target/mongo/util/net/ssl_manager.cpp",	# needed by background.cpp
+"build/Release/obj.target/mongo/client/dbclient.cpp",		#
+"build/Release/obj.target/mongo/db/query/type_explain.cpp",
+"build/Release/obj.target/mongo/client/sasl_client_authenticate.cpp",
 ]
 }
 }
