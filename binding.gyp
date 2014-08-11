@@ -30,12 +30,10 @@
 		"target_name": "mungedb-aggregate-native",
 		"variables": {
 			"mongo_src_dir": "src/third-party/mongo/src/mongo",
+			"mongo_dest_dir": "<(LIB_DIR)/mongo",
 			"third_party_src_dir": "src/third-party/mongo/src/third_party",
 			"third_party_dest_dir": "<(LIB_DIR)/third_party",
-			# GRRR.
-			"mongo_dest_dir": "<(LIB_DIR)/mongo",
 			"boost_dir": "src/third-party/mongo/src/third_party/boost",
-			"our_dir": "<(module_root_dir)", # TODO: use
 		},
 		"include_dirs": [
 			"src",
