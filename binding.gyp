@@ -33,7 +33,7 @@
 			"third_party_src_dir": "src/third-party/mongo/src/third_party",
 			"third_party_dest_dir": "<(LIB_DIR)/third_party",
 			# GRRR.
-			"mongo_dest_dir": "build/Release/obj.target/mongo", # "<(LIB_DIR)/mongo",
+			"mongo_dest_dir": "<(LIB_DIR)/mongo",
 			"boost_dir": "src/third-party/mongo/src/third_party/boost",
 			"our_dir": "<(module_root_dir)", # TODO: use
 		},
@@ -56,14 +56,6 @@
 			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
 			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
 			'<(boost_dir)/libs/system/src/error_code.cpp',
-
-			#'<!@(bash -c "find build/Release/obj.target/mongo -name \"*.cpp\" || true")',
-			#'<(mongo_dest_dir)/pch.cpp',
-			#'>!@(ls -1m build/Release/obj.target/mongo/bson/*.cpp',
-			#">!@(ls -1 >(mongo_dest_dir)/db/pipeline/*.cpp)",
-			#'>!@(ls -1 >(mongo_dest_dir)/base/*.cpp)',
-			#'<(mongo_dest_dir)/util/intrusive_counter.cpp',
-			#'<(mongo_dest_dir)/db/query/lite_parsed_query.cpp',
 		],
 		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
 		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
@@ -199,10 +191,10 @@
 						#"<(mongo_src_dir)/util/concurrency/list.h",								# client.cpp
 						#"<(mongo_src_dir)/util/concurrency/race.h",							# client.cpp
 						#"<(mongo_src_dir)/util/concurrency/mutexdebugger.h",	# client.cpp
-						#"<(mongo_src_dir)/util/concurrency/value.h",	# client.cpp
 						#"<(mongo_src_dir)/util/concurrency/thread_pool.h",	# client.cpp
 						#"<(mongo_src_dir)/util/concurrency/msg.h",	# client.cpp
 						#"<(mongo_src_dir)/util/concurrency/task.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/value.h",	# sock.cpp
 						"<(mongo_src_dir)/util/concurrency/spin_lock.cpp",	# SpinLock()
 					]
 			},
