@@ -55,6 +55,7 @@
 
 			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
 			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
+			'<(boost_dir)/libs/system/src/error_code.cpp',
 
 			#'<!@(bash -c "find build/Release/obj.target/mongo -name \"*.cpp\" || true")',
 			#'<(mongo_dest_dir)/pch.cpp',
@@ -176,6 +177,8 @@
 						"<(mongo_src_dir)/util/fail_point_service.h",		# sock.cpp
 						"<(mongo_src_dir)/util/fail_point_registry.h",		# sock.cpp
 						"<(mongo_src_dir)/util/fail_point.h",		# sock.cpp
+						"<(mongo_src_dir)/util/base64.cpp",		# json.cpp
+						"<(mongo_src_dir)/util/fail_point.cpp",		# FailPoint().
 					]
 			},
 			{
@@ -200,6 +203,7 @@
 						"<(mongo_src_dir)/util/concurrency/thread_pool.h",	# client.cpp
 						"<(mongo_src_dir)/util/concurrency/msg.h",	# client.cpp
 						"<(mongo_src_dir)/util/concurrency/task.h",	# client.cpp
+						"<(mongo_src_dir)/util/concurrency/spin_lock.cpp",	# SpinLock()
 					]
 			},
 			{
@@ -228,6 +232,7 @@
 
 						# Loading.
 						"<(mongo_src_dir)/util/mongoutils/checksum.h",
+						"<(mongo_src_dir)/util/mongoutils/html.h",	# ramlog.cpp
 					]
 			},
 			{
@@ -351,6 +356,7 @@
 						"<(mongo_src_dir)/db/lasterror.cpp",		# Load.
 						"<(mongo_src_dir)/db/dbhelpers.h",		# rs.cpp.
 						"<(mongo_src_dir)/db/wire_version.h",		# d_state.cpp.
+						"<(mongo_src_dir)/db/json.cpp",				# fromjson().
 					]
 			},
 			{
@@ -523,6 +529,8 @@
 						# Load: ~RotatableFileManager()
 						'<(mongo_src_dir)/logger/rotatable_file_manager.cpp',
 						'<(mongo_src_dir)/logger/rotatable_file_manager.h',
+						'<(mongo_src_dir)/logger/ramlog.cpp',	# RamLog::get()
+						'<(mongo_src_dir)/logger/ramlog.h',
 					]
 			},
 			{

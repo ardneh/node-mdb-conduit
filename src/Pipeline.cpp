@@ -60,6 +60,7 @@ VersionManager versionManager;
 
 #include <mongo/db/matcher/expression_parser.h>
 #include <mongo/util/concurrency/threadlocal.h>  //TSP_DEFINE
+#include <mongo/db/query/find_constants.h>  //
 
 namespace mongo {
 
@@ -69,6 +70,8 @@ namespace mongo {
 	//To avoid linking in client.cpp which pulls in the kitchen sink.
 	class Client {};
 	TSP_DEFINE(Client, currentClient);
+
+    const int32_t MaxBytesToReturnToClientAtOnce = 4 * 1024 * 1024;
 }
 
 // Done with hacks... For now!
@@ -134,7 +137,7 @@ Handle<Value> aggregate(const Arguments &args) {
 
   boost::intrusive_ptr<mongo::ExpressionContext> ctx =
       new mongo::ExpressionContext(mongo::InterruptStatusNoop::status,
-                                   mongo::NamespaceString("node-pipeline"));
+                                   mongo::NamespaceString("mungedb_aggregate_native"));
 
   try {
     std::string errmsg;
@@ -238,4 +241,4 @@ void init(Handle<Object> exports) {
 }
 
 //TODO: use context aware version.
-NODE_MODULE(pipeline, init)
+NODE_MODULE(mungedb_aggregate_native, init)

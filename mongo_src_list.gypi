@@ -55,7 +55,7 @@
 "build/Release/obj.target/mongo/logger/logstream_builder.cpp",
 "build/Release/obj.target/mongo/logger/message_event_utf8_encoder.cpp",
 "build/Release/obj.target/mongo/logger/message_log_domain.cpp",
-#"build/Release/obj.target/mongo/logger/ramlog.cpp", # Includes util/mongoutils/html.h, trying to skip.
+"build/Release/obj.target/mongo/logger/ramlog.cpp", # Includes util/mongoutils/html.h, trying to skip.  RamLog::get() needed at runtime.
 "build/Release/obj.target/mongo/logger/rotatable_file_manager.cpp", # Includes mongo/util/map_util.h, trying to skip.
 #"build/Release/obj.target/mongo/logger/rotatable_file_writer.cpp", # Part of rotatable_file_manager.cpp ?
 #"build/Release/obj.target/mongo/logger/rotatable_file_writer_test.cpp",
@@ -127,6 +127,10 @@
 "build/Release/obj.target/mongo/db/server_options.cpp",		# Load: serverGlobalOptions.
 "build/Release/obj.target/mongo/util/timer.cpp",		# Timer::_countsPerSecond
 "build/Release/obj.target/mongo/util/net/sock.cpp",		# vtable SocketException
+"build/Release/obj.target/mongo/db/json.cpp",    # fromjson()
+"build/Release/obj.target/mongo/util/base64.cpp",		# json.cpp
+"build/Release/obj.target/mongo/util/fail_point.cpp",		# FailPoint()
+"build/Release/obj.target/mongo/util/concurrency/spin_lock.cpp",  # SpinLock()
 ]
 }
 }
