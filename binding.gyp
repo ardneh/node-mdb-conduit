@@ -153,6 +153,7 @@
 
 						# Load.
 						"<(mongo_src_dir)/util/assert_util.cpp",	# Needed to fix missing DBException on load.
+						"<(mongo_src_dir)/util/stacktrace.cpp",	# Needed to fix missing DBException on load.
 						"<(mongo_src_dir)/util/startup_test.cpp",	# Needed to fix missing StartupTest on load.
 						"<(mongo_src_dir)/util/background.cpp",	# PeriodicTask
 						"<(mongo_src_dir)/util/password_digest.h",
@@ -169,6 +170,7 @@
 						"<(mongo_src_dir)/util/fail_point.h",		# sock.cpp
 						"<(mongo_src_dir)/util/base64.cpp",		# json.cpp
 						"<(mongo_src_dir)/util/fail_point.cpp",		# FailPoint().
+						"<(mongo_src_dir)/util/fail_point_service.cpp",		# Run time, dependency graph.
 					]
 			},
 			{
