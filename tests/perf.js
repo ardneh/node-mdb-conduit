@@ -1,7 +1,7 @@
 "use strict";
 
 var assert = require("assert"),
-      _aggregate_bare = require("mongodb-pipeline")._aggregate_bare;
+      _aggregate_bare = require("../lib/index.js")._aggregate_bare;
 
 describe("aggregate performance", function(){
    xit("should be fast", function(done){

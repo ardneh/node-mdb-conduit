@@ -1,6 +1,6 @@
 "use strict";
 
-var aggregate = require("mongodb-pipeline").aggregate;
+var aggregate = require("../lib/index.js").aggregate;
 
 //The point of this is just to try every doc src, expression, etc... to see
 //if everything is correctly linked into the module's DLL.  Don't even need
