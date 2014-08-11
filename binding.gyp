@@ -34,11 +34,13 @@
 			"third_party_src_dir": "src/third-party/mongo/src/third_party",
 			"third_party_dest_dir": "<(LIB_DIR)/third_party",
 			"boost_dir": "src/third-party/mongo/src/third_party/boost",
+			"murmurhash3_dir": "<(third_party_src_dir)/murmurhash3",
 		},
 		"include_dirs": [
 			"src",
 			"<(LIB_DIR)",
 			"<(boost_dir)",
+			"<(murmurhash3_dir)",
 			"<(mongo_dest_dir)",
 		],
 		"sources": [
@@ -54,6 +56,8 @@
 			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
 			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
 			'<(boost_dir)/libs/system/src/error_code.cpp',
+
+			"<(murmurhash3_dir)/MurmurHash3.cpp",
 		],
 		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
 		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
@@ -171,6 +175,7 @@
 						"<(mongo_src_dir)/util/base64.cpp",		# json.cpp
 						"<(mongo_src_dir)/util/fail_point.cpp",		# FailPoint().
 						"<(mongo_src_dir)/util/fail_point_service.cpp",		# Run time, dependency graph.
+						"<(mongo_src_dir)/util/fail_point_registry.cpp",		# Run time, dependency graph.
 					]
 			},
 			{
@@ -523,13 +528,6 @@
 						'<(mongo_src_dir)/logger/rotatable_file_manager.h',
 						'<(mongo_src_dir)/logger/ramlog.cpp',	# RamLog::get()
 						'<(mongo_src_dir)/logger/ramlog.h',
-					]
-			},
-			{
-				"destination": "<(third_party_dest_dir)",
-				"files": [
-						# Compile
-						"<(third_party_src_dir)/murmurhash3",
 					]
 			},
 		]

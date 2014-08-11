@@ -132,6 +132,7 @@
 "<(LIB_DIR)/mongo/util/fail_point.cpp",		# FailPoint()
 "<(LIB_DIR)/mongo/util/concurrency/spin_lock.cpp",  # SpinLock()
 "<(LIB_DIR)/mongo/util/fail_point_service.cpp",		# Run time, dependency graph stuff.
+"<(LIB_DIR)/mongo/util/fail_point_registry.cpp",		# Run time, dependency graph stuff.
 ]
 }
 }
