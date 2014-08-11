@@ -45,7 +45,8 @@
 		],
 		"sources": [
 			# Our stuff.
-			"src/Pipeline.cpp",
+			"src/pipeline.cpp",
+			"src/mongo_stubs.cpp",
 			"src/mongo-ours/db/interrupt_status_noop.cpp",
 			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
 			"src/MongoV8Helpers.cpp",

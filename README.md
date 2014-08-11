@@ -64,8 +64,6 @@ TODO
    pipeline.
 * Move compile the mongo code in its own target so different cflags can be
    used.
-* Make a stubs.cpp for the "fun" parts of mongo that we do not want but
-   cannot get rid of yet.
 * Run as many of MongoDB's unit tests as possible.
 * Develop an pipeline agnostic set of tests that can be used for this and munge.
 * Test out the C++ driver's json parser!  See if that is faster than going from

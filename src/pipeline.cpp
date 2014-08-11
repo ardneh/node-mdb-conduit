@@ -3,29 +3,10 @@
 #include <node.h>
 #include <v8.h>
 
-// TODO: make our own version of this to help setup stuff for mongo (esp. using
-// node's v8 and doing using namespace ...)
-//#include "mongo/pch.h"
-
-// TODO: include the appropriate files.  Note: these are found in the
-// `foundation` library along with StartupTest.
-/*#define verify(x) \
-  {}
-#define uassert(a, b, c)                                                       \
-  {}
-#define massert(a, b, c)                                                       \
-  {}
-#define dassert(a)                                                             \
-  {} // src/mongo/util/assert_util.h
-*/
 #include "mongo/pch.h"
 
 #include "mongo/base/initializer.h" //runGlobalInitializers()
 #include "mongo/bson/bsonobjbuilder.h"
-
-// Put this in our "mongo_pch.h" and include it before all mongo things.
-#include <boost/smart_ptr/intrusive_ptr.hpp>
-using boost::intrusive_ptr;
 
 //#include "mongo/db/pipeline/document_source.h"
 #include "mongo/db/pipeline/expression_context.h"
@@ -39,42 +20,8 @@ using boost::intrusive_ptr;
 
 #include "MongoV8Helpers.h"
 
+
 using namespace v8;
-
-// Begin hacks to get around missing symbols.
-
-namespace mongo {
-// Yet another dynamic symbol failure (when using $sort).
-// This is defined in mongo/db/server_options_helpers.cpp providing my own
-// version
-// to avoid having to pull in even more libs.  Should move this somewhere else.
-bool isMongos() { return false; }
-
-// Yep, this is horrible. :)  It's defined as part of the mongos code
-// and I do not want to pull any more things in.
-struct VersionManager {};
-VersionManager versionManager;
-}
-
-// Begin hacks to make sure the linker knows we actually use these.
-
-#include <mongo/db/matcher/expression_parser.h>
-#include <mongo/util/concurrency/threadlocal.h>  //TSP_DEFINE
-#include <mongo/db/query/find_constants.h>  //
-
-namespace mongo {
-
-	StatusWithMatchExpression (*weNeed_parse)(const BSONObj &) =
-	    &MatchExpressionParser::parse;
-
-	//To avoid linking in client.cpp which pulls in the kitchen sink.
-	class Client {};
-	TSP_DEFINE(Client, currentClient);
-
-    const int32_t MaxBytesToReturnToClientAtOnce = 4 * 1024 * 1024;
-}
-
-// Done with hacks... For now!
 
 Handle<Value> callWithError(HandleScope &scope, Local<Function> &callback,
                             const char *const msg) {
