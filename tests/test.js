@@ -1,6 +1,6 @@
 "use strict";
 
-var aggregate = require("mungedb-aggregate-native").aggregate,
+var aggregate = require("../lib/index.js").aggregate,
 	assert = require("assert"),
 	sampleDocs1 = [{"v":3}, {"v":5}, {"v":2}, {"v":1}, {"v":4}];
 

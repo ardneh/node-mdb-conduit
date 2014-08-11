@@ -33,14 +33,13 @@
 			"mongo_dest_dir": "<(LIB_DIR)/mongo",
 			"third_party_src_dir": "src/third-party/mongo/src/third_party",
 			"third_party_dest_dir": "<(LIB_DIR)/third_party",
-			"boost_dir": "src/third-party/mongo/src/third_party/boost",
-			"murmurhash3_dir": "<(third_party_src_dir)/murmurhash3",
+			"boost_dir": "<(third_party_dest_dir)/boost",
+			"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
 		},
 		"include_dirs": [
 			"src",
 			"<(LIB_DIR)",
 			"<(boost_dir)",
-			"<(murmurhash3_dir)",
 			"<(mongo_dest_dir)",
 		],
 		"sources": [
@@ -90,6 +89,15 @@
 			}]
 		],
 		'copies': [
+			# Copying the third party libs to make sure we cannot accidentally include
+			# any mongo files.
+			{
+				'destination': '<(third_party_dest_dir)',
+				'files': [
+					"<(third_party_src_dir)/murmurhash3",
+					"<(third_party_src_dir)/boost",
+					],
+			},
 			# Note: a ton of these just came from lite_parsed_query.*
 			{
 				'destination': '<(mongo_dest_dir)',

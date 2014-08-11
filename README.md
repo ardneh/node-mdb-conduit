@@ -27,15 +27,14 @@ Build Requirements
 * The rest of the MongoDB build requirements
 *  See [Building MongoDB](http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/)
 
-Build Steps
----------------
+Development Build Steps
+---------------------------------------
 Note: All of these will be rolled into bindings.gyp as time permits
 * Setup a nodeenv.  You can skip this if you want to install globally, etc...
   ```sh
   pip install nodeenv
-  nodeenv --force .
-  . bin/activate
-  ln -s lib/node_modules node_modules
+  nodeenv --force nodeenv
+  . nodeenv/bin/activate
   npm install -g node-gyp
   ```
 * Clone the MongoDB source:
@@ -52,7 +51,7 @@ Note: All of these will be rolled into bindings.gyp as time permits
   ```
 * Now we can build the actual node module:
   ```sh
-  npm install
+  npm install -g --link
   ```
 
 TODO
