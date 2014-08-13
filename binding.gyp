@@ -4,7 +4,16 @@
 {
 	"includes": [
 		"mongo_src_list.gypi",
+		"libstemmer_src_list.gypi",
+		"s2_src_list.gypi",
 	],
+	"variables": {
+		"third_party_src_dir": "src/third-party/mongo/src/third_party",
+		"third_party_dest_dir": "<(LIB_DIR)/third_party",
+		"boost_dir": "<(third_party_dest_dir)/boost",
+		"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
+		"s2_dir": "<(third_party_dest_dir)/s2",
+	},
 	"target_defaults": {
 		"configurations": {
 			"Debug": {  # TODO: figure out how to get this working!
@@ -27,15 +36,36 @@
 	#}, {
 	#	"target_name": "clone_mongo_cxx_driver", # TODO: for the json->bson parser :)  Assumes it will not be in the mongo src for much longer.
 	#}, {
+		"target_name": "libstemmer_c",
+		"type": "static_library",
+		'product_prefix': 'lib',
+		"variables": {
+			"libstemmer_dir": "<(third_party_dest_dir)/libstemmer_c",
+		},
+		"include_dirs": [
+			"<(libstemmer_dir)/include",
+		],
+		"sources": [
+			'<@(libstemmer_src_files)',
+		],
+		'copies': [
+			# Copying the third party libs to make sure we cannot accidentally include
+			# any mongo files.
+			{
+				'destination': '<(third_party_dest_dir)',
+				'files': [
+					"<(third_party_src_dir)/libstemmer_c",
+					],
+			},
+		],
+	}, {
 		"target_name": "mungedb-aggregate-native",
+		"dependencies": [
+			"libstemmer_c",
+		],
 		"variables": {
 			"mongo_src_dir": "src/third-party/mongo/src/mongo",
 			"mongo_dest_dir": "<(LIB_DIR)/mongo",
-			"third_party_src_dir": "src/third-party/mongo/src/third_party",
-			"third_party_dest_dir": "<(LIB_DIR)/third_party",
-			"boost_dir": "<(third_party_dest_dir)/boost",
-			"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
-			"s2_dir": "<(third_party_dest_dir)/s2",
 		},
 		"include_dirs": [
 			"src",
@@ -45,7 +75,9 @@
 			"<(s2_dir)",
 		],
 		"libraries": [
+			"-lstemmer_c",
 			"-lpcrecpp",
+			"-L<(LIB_DIR)",
 		],
 		"sources": [
 			# Our stuff.
@@ -102,7 +134,6 @@
 					"<(third_party_src_dir)/murmurhash3",
 					"<(third_party_src_dir)/boost",
 					"<(third_party_src_dir)/s2",
-					"<(third_party_src_dir)/libstemmer_c",
 					],
 			},
 			# Note: a ton of these just came from lite_parsed_query.*
