@@ -47,7 +47,7 @@ Note: sometimes the libstemmer_c target fails.  Re-running npm install will
   ```sh
   npm install -g node-gyp mocha
   ```
-* Build and test the module:
+* Build and test the module.  The build will take ~15 minutes on a slower box.
   ```sh
   npm install && npm test
   ```
