@@ -4,8 +4,7 @@ This node modules makes [MongoDB's](http://mongodb.org) aggregation pipeline
 Potential uses
 ------------------
 * Provide a common API to query data in an application (one DSL).
-* Post-processing of data returned by MongoDB.
-* Pre-processing of pipelines sent to MongoDB.
+* Pre/post-processing of data returned by MongoDB.
 * Test out ideas for new pipeline functionality.
 * Profile pipeline operations more easily.
 
@@ -20,15 +19,15 @@ Disclaimers
 * It is only going to build on `nix platforms for now.  "Linux" should work
   and OS X should be easy to make work if it does not already.
 * This is the first time I've used gyp, so I am certain I could be doing some
-  things better there.
-* This is also my first native node module.  I want to be to compatible with
-  v0.10 and v0.11/12.
+  things better there.  And now it looks like gyp is dead so I'm not going to
+  put much effort into making the gyp files perfect.  Long live gn....
+* This is also my first native node module so it's going to be rough.
 
 Build Requirements
 -------------------------
-* Python
-* scons
-* The rest of the MongoDB build requirements
+* A bash compatible shell
+* Git
+* The rest of the MongoDB build requirements?
 *  See [Building MongoDB](http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/)
 
 Development Build Steps

@@ -1,5 +1,6 @@
 # Here is an incomplete list of things that we need to make a mongo build to get:
-# * mongo/base/error_codes.h
+# * mongo/base/error_codes.h/cpp
+# * mongo/db/auth/action_type.h/cpp
 
 {
 	"includes": [
@@ -8,9 +9,12 @@
 		"s2_src_list.gypi",
 	],
 	"variables": {
-		"third_party_src_dir": "src/third-party/mongo/src/third_party",
+		"third_party_src_dir": "third_party/mongo/src/third_party",
 		"third_party_dest_dir": "<(LIB_DIR)/third_party",
+		"mongo_src_dir": "third_party/mongo/src/mongo",
+		"mongo_dest_dir": "<(LIB_DIR)/mongo",
 		"boost_dir": "<(third_party_dest_dir)/boost",
+		"libstemmer_dir": "<(third_party_dest_dir)/libstemmer_c",
 		"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
 		"s2_dir": "<(third_party_dest_dir)/s2",
 		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
@@ -54,19 +58,24 @@
 		},
 	},
 	"targets": [{
-	#	"target_name": "clone_mongo",	# TODO: clone mongo into src/third-party.  The the pre-built option in node-gyp might provide a good example.
-						# See: https://code.google.com/p/gyp/wiki/GypLanguageSpecification#Actions
-						# And maybe: http://stackoverflow.com/questions/18102858/how-to-move-gyp-target-to-a-separate-include-file
-	#	"git clone -b v2.6 --depth 2 --single-branch https://github.com/mongodb/mongo src/third-party/mongo"
-	#}, {
-	#	"target_name": "clone_mongo_cxx_driver", # TODO: for the json->bson parser :)  Assumes it will not be in the mongo src for much longer.
-	#}, {
+		"target_name": "clone_mongo_src",
+		"actions": [{
+			"action_name": "clone",
+			'inputs': [
+				'third_party/mongo2/SConstruct',
+			],
+         'outputs': [
+				'third_party/mongo2/SConstruct',
+          ],
+			"action": [
+				#"git", "clone", "-b" "v2.6", "--depth", "1", "--single-branch", "https://github.com/mongodb/mongo", "third_party/mongo2"
+				"bash", "bin/clone_mongodb.sh"
+			]
+		}],
+	}, {
 		"target_name": "libstemmer_c",
 		"type": "static_library",
 		'product_prefix': 'lib',
-		"variables": {
-			"libstemmer_dir": "<(third_party_dest_dir)/libstemmer_c",
-		},
 		"include_dirs": [
 			"<(libstemmer_dir)/include",
 		],
@@ -80,11 +89,14 @@
 				'destination': '<(third_party_dest_dir)',
 				'files': [
 					"<(third_party_src_dir)/libstemmer_c",
-					],
+				],
 			},
 		],
 	}, {
 		"target_name": "copy_s2_src",
+		"dependencies": [
+			"copy_mongo_src"
+		],
 		"type": "none",
 		'copies': [
 			# Copying the third party libs to make sure we cannot accidentally include
@@ -93,7 +105,7 @@
 				'destination': '<(third_party_dest_dir)',
 				'files': [
 					"<(third_party_src_dir)/s2",
-					],
+				],
 			},
 		],
 	}, {
@@ -126,68 +138,50 @@
 			'<@(s2_src_files)',
 		],
 	}, {
-		"target_name": "mungedb-aggregate-native",
+		"target_name": "temp_copy_mongo_error_codes",
+		"type": "none",
+		'copies': [
+			{
+				"destination": "<(mongo_dest_dir)/base",
+				'files': [
+						'third_party/need_to_generate/mongo/base/error_codes.h',		# TODO: Need to use scons to generate error_codes.h/cpp.
+						'third_party/need_to_generate/mongo/base/error_codes.cpp',		# TODO: Need to use scons to generate error_codes.h/cpp.
+					],
+			},
+		],
+	}, {
+		"target_name": "temp_copy_mongo_action_type",
+		"type": "none",
+		'copies': [
+			{
+				"destination": "<(mongo_dest_dir)/db/auth",
+				'files': [
+						"third_party/need_to_generate/mongo/db/auth/action_type.h",		# TODO: Need to use scons to generate action_type.h/cpp.
+						"third_party/need_to_generate/mongo/db/auth/action_type.cpp",		# TODO: Need to use scons to generate action_type.h/cpp.
+					],
+			},
+		],
+	}, {
+		# TODO: make this call a couple of special scons targets inside mongo to
+		# generate the 4 files we need.
+		"target_name": "generate_mongo_files",
+		"type": "none",
+		'dependencies': [
+			"clone_mongo_src",
+			"temp_copy_mongo_error_codes",
+			"temp_copy_mongo_action_type",
+		],
+		'outputs': [
+			"<(mongo_dest_dir)/base/error_codes.h",
+			"<(mongo_dest_dir)/base/error_codes.cpp",
+			"<(mongo_dest_dir)/db/auth/action_type.h",
+			"<(mongo_dest_dir)/db/auth/action_type.cpp",
+		],
+	}, {
+		"target_name": "copy_mongo_src",
+		"type": "none",
 		"dependencies": [
-			"libstemmer_c",
-			"s2",
-		],
-		"variables": {
-			"mongo_src_dir": "src/third-party/mongo/src/mongo",
-			"mongo_dest_dir": "<(LIB_DIR)/mongo",
-		},
-		"include_dirs": [
-			"src",
-			"<(LIB_DIR)",
-			"<(boost_dir)",
-			"<(mongo_dest_dir)",
-			"<(s2_dir)",
-		],
-		"libraries": [
-			"-lstemmer_c",
-			"-ls2",
-			"-lpcrecpp",
-			"-L<(LIB_DIR)",
-		],
-		"sources": [
-			# Our stuff.
-			"src/pipeline.cpp",
-			"src/mongo_stubs.cpp",
-			"src/mongo-ours/db/interrupt_status_noop.cpp",
-			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
-			"src/MongoV8Helpers.cpp",
-
-			# Mongo's stuff.
-			'<@(mongo_src_files)',
-
-			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
-			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
-			'<(boost_dir)/libs/system/src/error_code.cpp',
-
-			"<(murmurhash3_dir)/MurmurHash3.cpp",
-		],
-		"cflags": [
-			'<@(mongo_cflags)',
-		],
-		"defines": [ "MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1" ],
-		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
-		"conditions": [
-			["OS=='mac'", {
-				#"variables": {
-				#	"mongo_build_name": "darwin",
-				#},
-				"xcode_settings": {
-					"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-					"GCC_ENABLE_CPP_RTTI": "YES"
-				}
-			}],
-			["OS=='linux'", {
-				'defines':[
-					"MONGO_HAVE_EXECINFO_BACKTRACE=1",  # TODO: need to only set this if <execinfo.h> is present on the system.
-				],
-				#"variables": {
-				#	"mongo_build_name": "linux",
-				#}
-			}]
+			"generate_mongo_files",
 		],
 		'copies': [
 			# Copying the third party libs to make sure we cannot accidentally include
@@ -366,13 +360,6 @@
 						'<(mongo_src_dir)/client/dbclient.cpp',
 						'<(mongo_src_dir)/client/sasl_client_authenticate.h',
 						'<(mongo_src_dir)/client/sasl_client_authenticate.cpp',
-					]
-			},
-			{
-				"destination": "<(mongo_dest_dir)/base",
-				"files": [
-						'<(mongo_src_dir)/../../build/linux2/normal/mongo/base/error_codes.h',		# TODO: WE NED TO GENERATE THIS.
-						'<(mongo_src_dir)/../../build/linux2/normal/mongo/base/error_codes.cpp',
 					]
 			},
 			{
@@ -608,12 +595,10 @@
 						# Compile.
 						"<(mongo_src_dir)/db/auth/action_set.h",
 						"<(mongo_src_dir)/db/auth/privilege.h",
-						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.h",		# TODO FIX ME!!!  Need to have the mongo build generate this.
 						"<(mongo_src_dir)/db/auth/privilege_parser.h",
 						"<(mongo_src_dir)/db/auth/resource_pattern.h",
 
 						# Load.
-						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.cpp",	# TODO FIX ME!!!  Need to have the mongo build generate this.
 						#"<(mongo_src_dir)/db/auth/authorization_manager_global.h", # Most of these are included by client.cpp
 						"<(mongo_src_dir)/db/auth/authorization_manager.h",  # and expression_where.cpp
 						"<(mongo_src_dir)/db/auth/role_graph.h",		# and expression_where.cpp
@@ -663,5 +648,66 @@
 					]
 			},
 		]
+	}, {
+		"target_name": "mungedb-aggregate-native",
+		"dependencies": [
+			"libstemmer_c",
+			"s2",
+			"copy_mongo_src",
+		],
+		"include_dirs": [
+			"src",
+			"<(LIB_DIR)",
+			"<(boost_dir)",
+			"<(mongo_dest_dir)",
+			"<(s2_dir)",
+		],
+		"libraries": [
+			"-lstemmer_c",
+			"-ls2",
+			"-lpcrecpp",
+			"-L<(LIB_DIR)",
+		],
+		"sources": [
+			# Our stuff.
+			"src/pipeline.cpp",
+			"src/mongo_stubs.cpp",
+			"src/mongo-ours/db/interrupt_status_noop.cpp",
+			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
+			"src/MongoV8Helpers.cpp",
+
+			# Mongo's stuff.
+			'<@(mongo_src_files)',
+
+			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
+			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
+			'<(boost_dir)/libs/system/src/error_code.cpp',
+
+			"<(murmurhash3_dir)/MurmurHash3.cpp",
+		],
+		"cflags": [
+			'<@(mongo_cflags)',
+		],
+		"defines": [ "MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1" ],
+		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
+		"conditions": [
+			["OS=='mac'", {
+				#"variables": {
+				#	"mongo_build_name": "darwin",
+				#},
+				"xcode_settings": {
+					"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+					"GCC_ENABLE_CPP_RTTI": "YES"
+				}
+			}],
+			["OS=='linux'", {
+				'defines':[
+					"MONGO_HAVE_EXECINFO_BACKTRACE=1",  # TODO: need to only set this if <execinfo.h> is present on the system.
+				],
+				#"variables": {
+				#	"mongo_build_name": "linux",
+				#}
+			}]
+		],
 	}]  # End targets.
 }
