@@ -62,13 +62,12 @@
 		"actions": [{
 			"action_name": "clone",
 			'inputs': [
-				'third_party/mongo2/SConstruct',
+				'bin/clone_mongodb.sh',
 			],
          'outputs': [
-				'third_party/mongo2/SConstruct',
+				'third_party/mongo',
           ],
 			"action": [
-				#"git", "clone", "-b" "v2.6", "--depth", "1", "--single-branch", "https://github.com/mongodb/mongo", "third_party/mongo2"
 				"bash", "bin/clone_mongodb.sh"
 			]
 		}],
