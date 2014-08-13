@@ -133,6 +133,36 @@
 "<(LIB_DIR)/mongo/util/concurrency/spin_lock.cpp",  # SpinLock()
 "<(LIB_DIR)/mongo/util/fail_point_service.cpp",		# Run time, dependency graph stuff.
 "<(LIB_DIR)/mongo/util/fail_point_registry.cpp",		# Run time, dependency graph stuff.
+#"<(LIB_DIR)/mongo/db/matcher/matcher.cpp",		 # Run time, pipeline.
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser.cpp",		 # Run time, pipeline
+"<(LIB_DIR)/mongo/db/matcher/expression_array.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_array_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_geo.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_geo_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_leaf.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_leaf_test.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_array_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_parser.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_parser_geo.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_geo_test.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_leaf_test.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_test.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_text.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_text_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_parser_tree.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_parser_tree_test.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_text.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_tree.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/expression_tree_test.cpp",
+"<(LIB_DIR)/mongo/db/matcher/expression_where.cpp",
+"<(LIB_DIR)/mongo/db/matcher/matchable.cpp",
+"<(LIB_DIR)/mongo/db/matcher/match_details.cpp",
+"<(LIB_DIR)/mongo/db/matcher/matcher.cpp",
+"<(LIB_DIR)/mongo/db/matcher/path.cpp",
+"<(LIB_DIR)/mongo/db/matcher/path_internal.cpp",
+#"<(LIB_DIR)/mongo/db/matcher/path_test.cpp",
 ]
 }
 }

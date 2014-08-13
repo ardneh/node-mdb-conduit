@@ -35,12 +35,17 @@
 			"third_party_dest_dir": "<(LIB_DIR)/third_party",
 			"boost_dir": "<(third_party_dest_dir)/boost",
 			"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
+			"s2_dir": "<(third_party_dest_dir)/s2",
 		},
 		"include_dirs": [
 			"src",
 			"<(LIB_DIR)",
 			"<(boost_dir)",
 			"<(mongo_dest_dir)",
+			"<(s2_dir)",
+		],
+		"libraries": [
+			"-lpcrecpp",
 		],
 		"sources": [
 			# Our stuff.
@@ -96,6 +101,8 @@
 				'files': [
 					"<(third_party_src_dir)/murmurhash3",
 					"<(third_party_src_dir)/boost",
+					"<(third_party_src_dir)/s2",
+					"<(third_party_src_dir)/libstemmer_c",
 					],
 			},
 			# Note: a ton of these just came from lite_parsed_query.*
@@ -363,6 +370,7 @@
 						"<(mongo_src_dir)/db/dbhelpers.h",		# rs.cpp.
 						"<(mongo_src_dir)/db/wire_version.h",		# d_state.cpp.
 						"<(mongo_src_dir)/db/json.cpp",				# fromjson().
+						"<(mongo_src_dir)/db/hasher.h",			# matcher/expression_text.cpp
 					]
 			},
 			{
@@ -380,6 +388,8 @@
 						"<(mongo_src_dir)/db/query/find_constants.h",				# Remove? included by document_source_cursor.cpp
 						"<(mongo_src_dir)/db/query/type_explain.h",				# Try to remove.  included by document_source_cursor.cpp
 						"<(mongo_src_dir)/db/query/type_explain.cpp",
+
+						# Load.
 						#"<(mongo_src_dir)/db/query/plan_cache.h",		# client.cpp
 						#"<(mongo_src_dir)/db/query/stage_types.h",		# client.cpp
 						#"<(mongo_src_dir)/db/query/index_tag.h",		# client.cpp
@@ -388,6 +398,17 @@
 						#"<(mongo_src_dir)/db/query/index_entry.h",		# client.cpp
 						#"<(mongo_src_dir)/db/query/query_knobs.h",		# client.cpp
 						#"<(mongo_src_dir)/db/query/query_settings.h",		# client.cpp
+					]
+			},
+			{
+				"destination": "<(mongo_dest_dir)/db/fts",
+				"files": [
+						# Load.
+						"<(mongo_src_dir)/db/fts/fts_query.h",			# matcher/expression_text.h
+						"<(mongo_src_dir)/db/fts/stemmer.h",			# matcher/expression_text.cpp
+						"<(mongo_src_dir)/db/fts/fts_language.h",			# matcher/expression_text.cpp
+						"<(mongo_src_dir)/db/fts/fts_util.h",			# matcher/expression_text.cpp
+						"<(mongo_src_dir)/db/fts/stop_words.h",			# matcher/expression_text.cpp
 					]
 			},
 			# TODO this is required by document_source_cursor.cpp, mongo/db/client.h
@@ -452,12 +473,17 @@
 				"files": [
 						#"<(mongo_src_dir)/db/exec/collection_scan_common.h",		# client.cpp
 						#"<(mongo_src_dir)/db/exec/plan_stats.h",		# client.cpp
+						"<(mongo_src_dir)/db/exec/working_set.h",		# matcher.cpp
 					]
 			},
 			{
 				"destination": "<(mongo_dest_dir)/db/geo",
 				"files": [
 						#"<(mongo_src_dir)/db/geo/hash.h",		# client.cpp
+						"<(mongo_src_dir)/db/geo/geoquery.h",		# matcher.
+						"<(mongo_src_dir)/db/geo/geoparser.h",		# matcher.
+						"<(mongo_src_dir)/db/geo/shapes.h",		# matcher.
+						"<(mongo_src_dir)/db/geo/s2.h",		# matcher.
 					]
 			},
 			{
@@ -475,6 +501,8 @@
 						#"<(mongo_src_dir)/db/storage/record.h",				# client.cpp
 						#"<(mongo_src_dir)/db/storage/extent.h",				# client.cpp
 						#"<(mongo_src_dir)/db/storage/data_file.h",				# client.cpp
+						"<(mongo_src_dir)/db/storage/record.h",			# matcher/expression_text.cpp
+						"<(mongo_src_dir)/db/storage/extent.h",			# matcher/expression_text.cpp
 					]
 			},
 			# TODO this is required by pipeline.cpp Mock out the bits we need
@@ -492,15 +520,15 @@
 						# Load.
 						"<(mongo_src_dir)/../../build/linux2/normal/mongo/db/auth/action_type.cpp",	# TODO FIX ME!!!  Need to have the mongo build generate this.
 						#"<(mongo_src_dir)/db/auth/authorization_manager_global.h", # Most of these are included by client.cpp
-						#"<(mongo_src_dir)/db/auth/authorization_manager.h",
-						#"<(mongo_src_dir)/db/auth/role_graph.h",
-						#"<(mongo_src_dir)/db/auth/role_name.h",
-						#"<(mongo_src_dir)/db/auth/user.h",
-						#"<(mongo_src_dir)/db/auth/user_name.h",
-						#"<(mongo_src_dir)/db/auth/user_name_hash.h",
-						#"<(mongo_src_dir)/db/auth/authorization_session.h",
-						#"<(mongo_src_dir)/db/auth/authz_session_external_state.h",
-						#"<(mongo_src_dir)/db/auth/user_set.h",
+						"<(mongo_src_dir)/db/auth/authorization_manager.h",  # and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/role_graph.h",		# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/role_name.h",	# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/user.h",					# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/user_name.h",	# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/user_name_hash.h",		# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/authorization_session.h",	# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/authz_session_external_state.h",		# and expression_where.cpp
+						"<(mongo_src_dir)/db/auth/user_set.h",			# and expression_where.cpp
 						#"<(mongo_src_dir)/db/auth/authz_session_external_state_d.h",
 						#"<(mongo_src_dir)/db/auth/authz_session_external_state_server_common.h",
 						#"<(mongo_src_dir)/db/auth/authentication_session.h",	# client_basic.cpp
@@ -526,7 +554,7 @@
 				"destination": "<(mongo_dest_dir)/scripting",
 				"files": [
 						"<(mongo_src_dir)/scripting/v8_utils.h",
-						#"<(mongo_src_dir)/scripting/engine.h",		# client.cpp
+						"<(mongo_src_dir)/scripting/engine.h",		# expression_where.cpp and client.cpp
 					]
 			},
 			{

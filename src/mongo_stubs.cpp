@@ -3,8 +3,10 @@
 #include "mongo/pch.h"
 
 #include <mongo/db/matcher/expression_parser.h>
-#include <mongo/util/concurrency/threadlocal.h>  //TSP_DEFINE
-#include <mongo/db/query/find_constants.h>  //MaxBytesToReturnToClientAtOnce
+#include <mongo/util/concurrency/threadlocal.h>		//TSP_DEFINE
+#include <mongo/db/query/find_constants.h>  			//MaxBytesToReturnToClientAtOnce
+#include <mongo/scripting/engine.h>							//globalScriptEngine
+
 
 namespace mongo {
 	// Yet another dynamic symbol failure (when using $sort).
@@ -25,5 +27,7 @@ namespace mongo {
 	class Client {};
 	TSP_DEFINE(Client, currentClient);
 
-    const int32_t MaxBytesToReturnToClientAtOnce = 4 * 1024 * 1024;
+	const int32_t MaxBytesToReturnToClientAtOnce = 4 * 1024 * 1024;
+
+	ScriptEngine* globalScriptEngine = 0;
 }
