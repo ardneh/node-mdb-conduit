@@ -465,6 +465,7 @@
 						"<(mongo_src_dir)/db/wire_version.h",		# d_state.cpp.
 						"<(mongo_src_dir)/db/json.cpp",				# fromjson().
 						"<(mongo_src_dir)/db/hasher.h",			# matcher/expression_text.cpp
+						"<(mongo_src_dir)/db/field_ref.cpp",	# The pipeline obviously.
 					]
 			},
 			{

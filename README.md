@@ -14,6 +14,7 @@ Disclaimers
 * Full text search pulled in a bunch of stuff to read from the disk so I
   assume it will not work.  It's not something I anticipate needing any time
   soon so it's very low on the list of things to test/fix.
+* Where expressions require a bunch of auth stuff.  I doubt they will work.
 * This was initially put together as a very quick proof-of-concept so in it's
   current state it is not pretty.
 * It is only going to build on `nix platforms for now.  "Linux" should work

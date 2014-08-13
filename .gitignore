@@ -1,6 +1,7 @@
 /build
 /node_modules
 /src/mongo
+/nodeenv
 *.swp
 
 npm-debug.log

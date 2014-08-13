@@ -163,6 +163,7 @@
 "<(LIB_DIR)/mongo/db/matcher/path.cpp",
 "<(LIB_DIR)/mongo/db/matcher/path_internal.cpp",
 #"<(LIB_DIR)/mongo/db/matcher/path_test.cpp",
+"<(LIB_DIR)/mongo/db/field_ref.cpp",
 ]
 }
 }
