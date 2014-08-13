@@ -13,8 +13,33 @@
 		"boost_dir": "<(third_party_dest_dir)/boost",
 		"murmurhash3_dir": "<(third_party_dest_dir)/murmurhash3",
 		"s2_dir": "<(third_party_dest_dir)/s2",
+		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
+		# TEMP TODO: make sure we are using the same allocator.
+		"mongo_cflags": [
+			"-Wno-ignored-qualifiers",
+			"-Wno-extra",
+			"-Wnon-virtual-dtor",
+			"-Woverloaded-virtual",
+			"-fPIC",
+			"-fno-strict-aliasing",
+			"-ggdb",
+			"-pthread",
+			"-Wall",
+			"-Wsign-compare",
+			"-Wno-unknown-pragmas",
+			"-Winvalid-pch",
+			"-pipe",
+			"-Werror",
+			"-O3",
+			"-Wno-unused-local-typedefs",
+			"-Wno-unused-function",
+			"-Wno-deprecated-declarations",
+			"-fno-builtin-memcmp",
+		],
 	},
 	"target_defaults": {
+		"cflags!": [ "-fno-exceptions", "-fno-rtti", ], # These are macos/xcode defaults and need to be put in an appropriate block.
+		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
 		"configurations": {
 			"Debug": {  # TODO: figure out how to get this working!
 				"variables": {
@@ -59,9 +84,52 @@
 			},
 		],
 	}, {
+		"target_name": "copy_s2_src",
+		"type": "none",
+		'copies': [
+			# Copying the third party libs to make sure we cannot accidentally include
+			# any mongo files.
+			{
+				'destination': '<(third_party_dest_dir)',
+				'files': [
+					"<(third_party_src_dir)/s2",
+					],
+			},
+		],
+	}, {
+		# Note: Mongo links with all of the s2 libs, I'm leaving it at the main one
+		# for now because that got rid of the (initial) undefined symbol errors.
+		# If base, strings, etc... are need, just copy this block and use the other
+		# vars in s2_src_list.gypi.
+		"target_name": "s2",
+		"dependencies": [
+			"copy_s2_src",
+		],
+		"type": "static_library",
+		'product_prefix': 'lib',
+		# See note below about verify.  We're not getting these when building the mongo code so I just need to find the difference.
+		"cflags!": [ "-Werror", ], "cflags_cc!": ["-Werror", ],
+		"cflags": [
+			'-fpermissive',		# Work around issues with verify:
+												# error: there are no arguments to ‘verify’ that depend on a template parameter, so a declaration of ‘verify’ must be available [-fpermissive]
+			'<@(mongo_cflags)'
+		],
+		"include_dirs": [
+			"<(boost_dir)",
+			"<(s2_dir)",
+			"<(LIB_DIR)",	# It uses mongo/util/log.h
+		],
+		"defines": [
+			"DEBUG_MODE=false",
+		],
+		"sources": [
+			'<@(s2_src_files)',
+		],
+	}, {
 		"target_name": "mungedb-aggregate-native",
 		"dependencies": [
 			"libstemmer_c",
+			"s2",
 		],
 		"variables": {
 			"mongo_src_dir": "src/third-party/mongo/src/mongo",
@@ -76,6 +144,7 @@
 		],
 		"libraries": [
 			"-lstemmer_c",
+			"-ls2",
 			"-lpcrecpp",
 			"-L<(LIB_DIR)",
 		],
@@ -96,13 +165,8 @@
 
 			"<(murmurhash3_dir)/MurmurHash3.cpp",
 		],
-		"cflags!": [ "-fno-exceptions", "-fno-rtti" ],
-		"cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
-		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
-		# TEMP TODO: make sure we are using the same allocator.
 		"cflags": [
-			"-Wno-ignored-qualifiers", "-Wno-extra",
-			"-Wnon-virtual-dtor", "-Woverloaded-virtual", "-fPIC", "-fno-strict-aliasing", "-ggdb", "-pthread", "-Wall", "-Wsign-compare", "-Wno-unknown-pragmas", "-Winvalid-pch", "-pipe", "-Werror", "-O3", "-Wno-unused-local-typedefs", "-Wno-unused-function", "-Wno-deprecated-declarations", "-fno-builtin-memcmp"
+			'<@(mongo_cflags)',
 		],
 		"defines": [ "MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1" ],
 		"defines!": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn't seem to include it.
@@ -133,7 +197,6 @@
 				'files': [
 					"<(third_party_src_dir)/murmurhash3",
 					"<(third_party_src_dir)/boost",
-					"<(third_party_src_dir)/s2",
 					],
 			},
 			# Note: a ton of these just came from lite_parsed_query.*
