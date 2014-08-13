@@ -27,38 +27,34 @@ Build Requirements
 -------------------------
 * A bash compatible shell
 * Git
+* Python
 * The rest of the MongoDB build requirements?
 *  See [Building MongoDB](http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/)
 
 Development Build Steps
 ---------------------------------------
-Note: All of these will be rolled into bindings.gyp as time permits
+Note: sometimes the libstemmer_c target fails.  Re-running npm install will
+'fix' it.
+
+* Clone the module and cd into that directory.
 * Setup a nodeenv.  You can skip this if you want to install globally, etc...
   ```sh
   pip install nodeenv
-  nodeenv --force nodeenv
+  nodeenv nodeenv
   . nodeenv/bin/activate
-  npm install -g node-gyp
   ```
-* Clone the MongoDB source:
+* Install these globally for convenience.
   ```sh
-  git clone -b v2.6 --depth 2 --single-branch https://github.com/mongodb/mongo src/third-party/mongo
-   ```
-* Make sure the handful of generated files we need are created.
-  ```sh
-  # cd src/third-party/mongo
-  patch -p1 < ../patches/mongo/do_not_autoclean.patch
-  # TODO: update this.  A full build isn't needed, just a few steps to make
-  # sure error_codes.h/cpp and action_type.h/cpp are generated.
-  cd -
+  npm install -g node-gyp mocha
   ```
-* Now we can build the actual node module:
+* Build and test the module:
   ```sh
-  npm install -g --link
+  npm install && npm test
   ```
 
 TODO
 --------
+* Fix the on/off libstemmer_c missing api.o build issue.
 * Move all of the pipeline code to it's own repo and have this download and
   build it.  The only code that should be in this package is the node glue.
 *  Compile MongoDB's buildinfo.cpp and
@@ -87,7 +83,6 @@ TODO
 * Coalesce and optimize the input pipeline.
 * Make it extendable (DocumentSources, Pipeline, etc...) preferably both from
   C++ AND node (much lower priority).
-* Enable veryfy(), *assert(),
 * Try to re-use MongoDB's pipeline test cases.
 * Remove #if 0 blocks from MongoV8Helpers.
 * Rename v8ToMongo* to v8ToBson*.
