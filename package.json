@@ -1,5 +1,5 @@
 {
-  "name": "mungedb-aggregate-native",
+  "name": "mdb-conduit",
   "version": "0.0.1",
   "description": "Provides a native interface to a MongoDB-style aggregation pipeline",
   "author": "Charles J. Ezell III <charles.ezell@gmail.com>",
