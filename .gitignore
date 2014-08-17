@@ -1,15 +1,6 @@
 /build
+/mdb-conduit
 /node_modules
-/src/mongo
 /nodeenv
 *.swp
-
 npm-debug.log
-/bin
-/include
-/share
-/lib/node_modules
-/src/node-*
-/src/tmpbin
-/src/build
-/third_party/mongo

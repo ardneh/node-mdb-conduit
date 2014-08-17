@@ -15,11 +15,13 @@
 		"s2_dir": "<(third_party_dest_dir)/s2",
 		# TEMP TODO: get the compiler flags by using mongo's buildinfo.cpp.
 		# TEMP TODO: make sure we are using the same allocator.
+		"mongo_cflags_cc": [
+			"-Wnon-virtual-dtor",
+			"-Woverloaded-virtual",
+		],
 		"mongo_cflags": [
 			"-Wno-ignored-qualifiers",
 			"-Wno-extra",
-			"-Wnon-virtual-dtor",
-			"-Woverloaded-virtual",
 			"-fPIC",
 			"-fno-strict-aliasing",
 			"-ggdb",
@@ -39,7 +41,7 @@
 			"-fno-exceptions", "-fno-rtti", # These are macos/xcode defaults and need to be put in an appropriate block.
 			"-Wextra"										# Somehow this is getting set and overriding the -Wno-extra in mongo_cflags
 		],
-		"mongo_ccflags_exclude": [ "<@(mongo_cflags_exclude)" ], # These are macos/xcode defaults and need to be put in an appropriate block.
+		"mongo_cflags_exclude_cc": [ "<@(mongo_cflags_exclude)" ], # These are macos/xcode defaults and need to be put in an appropriate block.
 		"mongo_defines": [],# "MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1" ],
 		"mongo_defines_exclude": [ "_DEBUG" ],  # Prevent mutexDebugger from being included.  Debug build of mongo doesn"t seem to include it.
 
@@ -50,11 +52,10 @@
 			"MONGO_EXPOSE_MACROS=1", "LIBMONGOCLIENT_BUILDING=1"
 		],
 		"defines!": [ "<@(mongo_defines_exclude)" ],
-		"cflags": [
-			"<@(mongo_cflags)",
-		],
-		"cflags!": [ "<@(mongo_cflags_exclude)", ],
-		"cflags_cc!": [ "<@(mongo_ccflags_exclude)" ],
+		"cflags": [ "<@(mongo_cflags)" ],
+		"cflags!": [ "<@(mongo_cflags_exclude)" ],
+		"cflags_cc": [ "<@(mongo_cflags_cc)" ],
+		"cflags_cc!": [ "<@(mongo_cflags_exclude_cc)" ],
 		"include_dirs": [
 			"<(boost_dir)",
 			"<(mongo_dest_dir)",
@@ -71,7 +72,7 @@
 			},
 			"Release": {
 				"cflags": [
-					"-O3"
+					"-O2"
 				]
 			}
 		},
@@ -92,18 +93,21 @@
 	"targets": [
 		{
 			"target_name": "clone_mongo_src",
-			"actions": [{
-				"action_name": "clone",
-				"inputs": [
-					"bin/clone_mongodb.sh",
-				],
-	         "outputs": [
-					"third_party/mongo",
-	          ],
-				"action": [
-					"bash", "bin/clone_mongodb.sh"
-				]
-			}],
+			"type": "none",
+			"actions": [
+				{
+					"action_name": "clone",
+					"inputs": [
+						"bin/clone_mongodb.sh",
+					],
+					"outputs": [
+						"third_party/mongo",
+					],
+					"action": [
+						"bash", "bin/clone_mongodb.sh"
+					]
+				}
+			],
 		},
 		{
 			"target_name": "copy_mongo_src",
@@ -604,27 +608,7 @@
 			],
 		},
 		{
-			# TODO: make this call a couple of special scons targets inside mongo to
-			# generate the 4 files we need?
-			"target_name": "setup_mongo_src",
-			"type": "none",
-			"dependencies": [
-				"copy_mongo_src",
-				"temp_copy_mongo_error_codes",		# Temp.
-				"temp_copy_mongo_action_type",		# Temp.
-			],
-			"outputs": [
-				"<(mongo_dest_dir)/base/error_codes.h",
-				"<(mongo_dest_dir)/base/error_codes.cpp",
-				"<(mongo_dest_dir)/db/auth/action_type.h",
-				"<(mongo_dest_dir)/db/auth/action_type.cpp",
-			],
-		},
-		{
 			"target_name": "copy_stemmer_c_src",
-			"dependencies": [
-				"setup_mongo_src"
-			],
 			"type": "none",
 			"copies": [
 				# Copying the third party libs to make sure we cannot accidentally include
@@ -635,6 +619,40 @@
 						"<(third_party_src_dir)/libstemmer_c",
 					],
 				},
+			],
+		},
+		{
+			"target_name": "copy_s2_src",
+			"type": "none",
+			"copies": [
+				# Copying the third party libs to make sure we cannot accidentally include
+				# any mongo files.
+				{
+					"destination": "<(third_party_dest_dir)",
+					"files": [
+						"<(third_party_src_dir)/s2",
+					],
+				},
+			],
+		},
+		{
+			# TODO: make this call a couple of special scons targets inside mongo to
+			# generate the 4 files we need?
+			"target_name": "setup_mongo_src",
+			"type": "none",
+			"dependencies": [
+				"copy_mongo_src",
+				"temp_copy_mongo_error_codes",		# Temp.
+				"temp_copy_mongo_action_type",		# Temp.
+				"copy_stemmer_c_src",
+				"copy_s2_src",
+
+			],
+			"outputs": [
+				"<(mongo_dest_dir)/base/error_codes.h",
+				"<(mongo_dest_dir)/base/error_codes.cpp",
+				"<(mongo_dest_dir)/db/auth/action_type.h",
+				"<(mongo_dest_dir)/db/auth/action_type.cpp",
 			],
 		},
 		{
@@ -652,40 +670,16 @@
 			],
 		},
 		{
-			"target_name": "copy_s2_src",
-			"dependencies": [
-				"setup_mongo_src"
-			],
-			"type": "none",
-			"copies": [
-				# Copying the third party libs to make sure we cannot accidentally include
-				# any mongo files.
-				{
-					"destination": "<(third_party_dest_dir)",
-					"files": [
-						"<(third_party_src_dir)/s2",
-					],
-				},
-			],
-		},
-		{
 			# Note: Mongo links with all of the s2 libs, I'm leaving it at the main one
 			# for now because that got rid of the (initial) undefined symbol errors.
 			# If base, strings, etc... are need, just copy this block and use the other
 			# vars in s2_src_list.gypi.
-			"target_name": "s2",
+			"target_name": "libs2",
 			"dependencies": [
 				"copy_s2_src",
 			],
 			"type": "static_library",
 			"product_prefix": "lib",
-			# See note below about verify.  We're not getting these when building the mongo code so I just need to find the difference.
-			#"cflags!": [ "-Werror", ], "cflags_cc!": ["-Werror", ],
-			#"cflags": [
-			#	"-fpermissive",		# TEMP: Work around issues with verify:
-													# error: there are no arguments to ‘verify’ that depend on a template parameter, so a declaration of ‘verify’ must be available [-fpermissive]
-													# I'm not including/setting something up correctly.
-			#],
 			"include_dirs": [
 				"<(s2_dir)",
 			],
@@ -712,6 +706,7 @@
 			"type": "static_library",								# is using an old version of gyp that does not
 			"product_prefix": "lib",									# have the --no-duplicate-basename-check
 			"dependencies": [											# flag.
+				"libs2",
 				"setup_mongo_src",
 			],
 			"sources": [
@@ -723,10 +718,10 @@
 			"type": "static_library",
 			"product_prefix": "lib",
 			"dependencies": [
+				"setup_mongo_src",
 				"libmongo_bson",
 				"libmongo_matcher",
 				"libstemmer_c",
-				"s2",
 			],
 			"include_dirs": [
 				"src",
@@ -755,11 +750,10 @@
 				"<(murmurhash3_dir)/MurmurHash3.cpp",
 			],
 			"direct_dependent_settings": {
+				"cflags": [ "<@(mongo_cflags)" ],
 				"cflags!": [ "<@(mongo_cflags_exclude)" ],
-				"cflags_cc!": [ "<@(mongo_ccflags_exclude)" ],
-				"cflags": [
-					"<@(mongo_cflags)",
-				],
+				"cflags_cc": [ "<@(mongo_cflags_cc)" ],
+				"cflags_cc!": [ "<@(mongo_cflags_exclude_cc)" ],
 				"defines": [ "<@(mongo_defines)" ],
 				"defines!": [ "<@(mongo_defines_exclude)" ],
 				"include_dirs": [

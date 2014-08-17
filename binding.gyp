@@ -3,15 +3,16 @@
 		{
 			"target_name": "mdb-conduit",
 			"dependencies": [
-				"mdb-conduit.gyp:libmdb-conduit",
+				"third_party/mdb-conduit/mdb-conduit.gyp:libmdb-conduit",
 			],
 			"include_dirs": [
+				"third_party/mdb-conduit/src",
 				"src",
 				"<(LIB_DIR)",
 			],
 			"libraries": [
+				"-L<(LIB_DIR)/..",
 				"-lmdb-conduit",
-				"-L<(LIB_DIR)",
 			],
 			"sources": [
 				"src/module.cpp",
