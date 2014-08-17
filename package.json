@@ -11,8 +11,7 @@
     "mongodb"
   ],
   "dependencies": {
-    "bindings": "*",
-    "node-gyp": "*"
+    "bindings": "*"
   },
   "scripts": {
     "preinstall": "node-gyp configure build",

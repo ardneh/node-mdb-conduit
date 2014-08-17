@@ -12,11 +12,11 @@
 #include "mongo/db/pipeline/expression_context.h"
 #include "mongo/db/pipeline/pipeline.h"
 
-#include "mongo-ours/db/interrupt_status_noop.h"
+#include "db/interrupt_status_noop.h"
 // TODO: use this instead of converting the input javascript types to BSON up
 // front.
 // This pulls in a BUNCH of stuff at compile time :/
-#include "mongo-ours/db/pipeline/document_source_v8.h"
+#include "db/pipeline/document_source_v8.h"
 
 #include "MongoV8Helpers.h"
 
@@ -84,7 +84,7 @@ Handle<Value> aggregate(const Arguments &args) {
 
   boost::intrusive_ptr<mongo::ExpressionContext> ctx =
       new mongo::ExpressionContext(mongo::InterruptStatusNoop::status,
-                                   mongo::NamespaceString("mungedb_aggregate_native"));
+                                   mongo::NamespaceString("mdb_conduit"));
 
   try {
     std::string errmsg;
@@ -188,4 +188,4 @@ void init(Handle<Object> exports) {
 }
 
 //TODO: use context aware version.
-NODE_MODULE(mungedb_aggregate_native, init)
+NODE_MODULE(mdb_conduit, init)

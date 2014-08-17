@@ -648,7 +648,7 @@
 			},
 		]
 	}, {
-		"target_name": "mungedb-aggregate-native",
+		"target_name": "mdb-conduit",
 		"dependencies": [
 			"libstemmer_c",
 			"s2",
@@ -669,16 +669,16 @@
 		],
 		"sources": [
 			# Our stuff.
-			"src/pipeline.cpp",
+			"src/module.cpp",
+			"src/db/interrupt_status_noop.cpp",
+			"src/db/pipeline/document_source_v8.cpp",
 			"src/mongo_stubs.cpp",
-			"src/mongo-ours/db/interrupt_status_noop.cpp",
-			"src/mongo-ours/db/pipeline/document_source_v8.cpp",
 			"src/MongoV8Helpers.cpp",
 
 			# Mongo's stuff.
 			'<@(mongo_src_files)',
 
-			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: we need to build these via boost.
+			'<(boost_dir)/libs/thread/src/pthread/thread.cpp',		# TODO: build these via boost?
 			'<(boost_dir)/libs/thread/src/pthread/once.cpp',
 			'<(boost_dir)/libs/system/src/error_code.cpp',
 
