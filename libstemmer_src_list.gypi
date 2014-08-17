@@ -35,7 +35,7 @@
 "<(LIB_DIR)/third_party/libstemmer_c/src_c/stem_UTF_8_spanish.c",
 "<(LIB_DIR)/third_party/libstemmer_c/src_c/stem_UTF_8_swedish.c",
 "<(LIB_DIR)/third_party/libstemmer_c/src_c/stem_UTF_8_turkish.c",
-"<(LIB_DIR)/third_party/libstemmer_c/libstemmer/libstemmer.c",
+#"<(LIB_DIR)/third_party/libstemmer_c/libstemmer/libstemmer.c",
 "<(LIB_DIR)/third_party/libstemmer_c/libstemmer/libstemmer_utf8.c",
 ]
 }

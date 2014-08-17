@@ -33,9 +33,6 @@ Build Requirements
 
 Development Build Steps
 ---------------------------------------
-Note: sometimes the libstemmer_c target fails.  Re-running npm install will
-'fix' it.
-
 * Clone the module and cd into that directory.
 * Setup a nodeenv.  You can skip this if you want to install globally, etc...
   ```sh
@@ -47,10 +44,20 @@ Note: sometimes the libstemmer_c target fails.  Re-running npm install will
   ```sh
   npm install -g node-gyp mocha
   ```
-* Build and test the module.  The build will take ~15 minutes on a slower box.
+* Build and test the module.  The build will take ~5-6 minutes on a slower box.
   ```sh
   npm install && npm test
   ```
+
+Troubleshooting
+--------------------------
+If you get a 'Error: Failed global initialization: BadValue default' error
+right after Module.load this most likely means that a function wasn't linked
+in that was needed (because I'm playing games).  Build the module in debug
+mode (node-gyp --debug configure build) and set a breakpoint in
+build/Debug/obj.target/mongo/base/initializer_dependency_graph.cpp on
+line 113.  Then look currentNode.first and currentNode.second to see what
+initializer function is missing from the the mdb-conduit shared library.
 
 TODO
 --------
