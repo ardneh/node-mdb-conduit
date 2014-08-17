@@ -3,16 +3,17 @@
   "version": "0.0.1",
   "description": "Provides a native interface to a MongoDB-style aggregation pipeline",
   "author": "Charles J. Ezell III <charles.ezell@gmail.com>",
-  "main": "./lib/index.js",
+  "license": "Affero General Public License v3",
   "keywords": [
-    "mungedb",
     "aggregate",
     "pipeline",
     "mongodb"
   ],
+  "repository": "ardneh/node-mdb-conduit",
   "dependencies": {
     "bindings": "*"
   },
+  "main": "./lib/index.js",
   "scripts": {
     "preinstall": "node-gyp configure build",
     "test": "mocha tests"
@@ -24,8 +25,6 @@
     "jscheckstyle": "*",
     "yuidocjs": "*"
   },
-  "license": "Affero General Public License v3",
-  "private": true,
   "engine": {
     "node": "~0.10.x"
   },
