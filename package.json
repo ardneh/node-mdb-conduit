@@ -1,6 +1,6 @@
 {
   "name": "mdb-conduit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Provides a native interface to a MongoDB-style aggregation pipeline",
   "author": "Charles J. Ezell III <charles.ezell@gmail.com>",
   "license": "Affero General Public License v3",
@@ -15,7 +15,7 @@
   },
   "main": "./lib/index.js",
   "scripts": {
-    "preinstall": "node-gyp configure build",
+    "postinstall": "bin/clean.py",
     "test": "mocha tests"
   },
   "devDependencies": {
