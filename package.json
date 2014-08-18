@@ -1,6 +1,6 @@
 {
   "name": "mdb-conduit",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Provides a native interface to a MongoDB-style aggregation pipeline",
   "author": "Charles J. Ezell III <charles.ezell@gmail.com>",
   "license": "Affero General Public License v3",
@@ -29,6 +29,7 @@
     "node": "~0.10.x"
   },
   "os": [
-     "linux"
+     "linux",
+     "darwin"
   ]
 }
