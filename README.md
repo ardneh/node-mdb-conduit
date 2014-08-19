@@ -36,8 +36,21 @@ Development Build Steps
   npm install -g node-gyp mocha
   ```
 * Build and test the module.  The build will take ~5-6 minutes on a slower box.
+  Note: `npm install` runs bin/clean.py afterwards, removing all temporary build
+  artifacts which you do _not_ want if you are going to do development on the
+  module.
   ```sh
-  npm install && npm test
+  node-gyp --debug configure build && npm test
+  ```
+* Debugging.
+  ```sh
+  gdb --args node your_pipeline_test.js
+  ```
+  Once inside gdb, do:
+  ```
+  set auto-solib-add
+  b init
+  r
   ```
 
 Troubleshooting
