@@ -8,6 +8,37 @@ Potential uses
 * Test out ideas for new pipeline functionality.
 * Profile pipeline operations more easily.
 
+Examples
+--------------
+* As a command.
+  s```sh
+   echo '[{v:5},{v:1},{v:3},{v:4},{v:2},{v:0}]' >> array.json
+   mdb-conduit '[{$sort:{v:1}}]' -f "json-json"  array.json
+  ```
+* Programmatically.
+  ```C++
+   //Note: I haven't tried to compile this yet, but it should be close.  Sorry!
+
+   #include <iostream>
+   #include <src/mdb_pipeline.h>
+
+   using namespace conduit;
+
+   void printTransformedData(BSONObj pipeline, BSONObj data) {
+      Pipeline conduit(pipeline);
+
+      BSONObjBuilder result;
+      conduit(data, result);
+
+      cout << result.obj().jsonString());
+   }
+   ```
+* See conduit_main() in src/tools/mdb_conduit.cpp for a full example.
+
+Bindings
+--------
+NodeJS: https://www.npmjs.org/package/mdb-conduit
+
 Disclaimers
 -----------
 * The build here is very bare bones and only tested on a newer install of
@@ -33,10 +64,9 @@ Build Requirements
 * A bash compatible shell
 * Git
 * Python
-* The rest of the MongoDB build requirements?
-*  See [Building MongoDB](http://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/)
+* A C++11 capable compiler.
 
-Using from C++
+Linking
 --------------
 If you are using GYP already, just add "<path-to-this-project>/mdb-conduit.gyp:mdb-conduit" to your
 dependencies.  Otherwise, follow the development build steps and link with
@@ -51,7 +81,7 @@ Development Build Steps
   ```
 * Build.  This should take ~5-6 minutes on a slower box.
   ```sh
-  make -C build
+  DEBUG=1 make -C build
   ```
 
 License
