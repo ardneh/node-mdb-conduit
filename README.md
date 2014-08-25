@@ -17,8 +17,6 @@ Examples
   ```
 * Programmatically.
   ```JavaScript
-   //Note: I haven't tried to test this yet, but it should be close.  Sorry!
-
    var mdb_conduit = require('mdb-conduit'),
          pipeline = [{$sort:{v:1}}],
          docs = [{v:5},{v:1},{v:3},{v:4},{v:2},{v:0}];
