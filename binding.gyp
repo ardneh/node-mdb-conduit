@@ -6,13 +6,12 @@
 				"third_party/mdb-conduit/mdb-conduit.gyp:libmdb-conduit",
 			],
 			"include_dirs": [
-				"third_party/mdb-conduit/src",
+				"third_party",
 				"src",
 				"<(LIB_DIR)",
 			],
-			"libraries": [
+			"ldflags": [
 				"-L<(LIB_DIR)/..",
-				"-lmdb-conduit",
 			],
 			"sources": [
 				"src/module.cpp",

@@ -8,6 +8,31 @@ Potential uses
 * Test out ideas for new pipeline functionality.
 * Profile pipeline operations more easily.
 
+Examples
+--------------
+* As a command.
+  s```sh
+   echo '[{v:5},{v:1},{v:3},{v:4},{v:2},{v:0}]' >> array.json
+   mdb-conduit -e '[{$sort:{v:1}}]' array.json
+  ```
+* Programmatically.
+  ```JavaScript
+   //Note: I haven't tried to test this yet, but it should be close.  Sorry!
+
+   var mdb_conduit = require('mdb-conduit'),
+         pipeline = [{$sort:{v:1}}],
+         docs = [{v:5},{v:1},{v:3},{v:4},{v:2},{v:0}];
+
+   mdb_conduit.aggregate(pipeline, docs, function(err, results) {
+      if(err) {
+         console.error("Aggregation failed:", err);
+         return;
+      }
+
+      console.log("result:", results)
+   });
+   ```
+
 Disclaimers
 ---------------
 * Full text search and where expressions probably don't work. See
@@ -21,6 +46,9 @@ Disclaimers
 Build Requirements
 -------------------------
 * A bash compatible shell
+* Git
+* Python
+* A C++11 capable compiler.
 
 Development Build Steps
 ---------------------------------------

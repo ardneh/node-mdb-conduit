@@ -19,20 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <sstream>
+#include <vector>
+
+#include <boost/scoped_array.hpp>
 
 #include <node.h>
 #include <v8.h>
 
-#include "mongo/pch.h"
+#include <mdb-conduit/src/mdb_pipeline.h>
+#include <mdb-conduit/src/tools/mdb_conduit.h>
 
-#include "mongo/base/initializer.h" //runGlobalInitializers()
-#include "mongo/bson/bsonobjbuilder.h"
-
-
-#include "mongo/db/pipeline/expression_context.h"
-#include "mongo/db/pipeline/pipeline.h"
-
-#include "db/interrupt_status_noop.h"
 // TODO: use this instead of converting the input javascript types to BSON up
 // front.  Unfortunately this pulls in a BUNCH of stuff at compile time :/
 #include "db/pipeline/document_source_v8.h"
@@ -40,8 +36,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MongoV8Helpers.h"
 
 
+using namespace std;
 using namespace v8;
 
+//Wrap up boilerplate for error handling.
 Handle<Value> callWithError(HandleScope &scope, Local<Function> &callback,
                             const char *const msg) {
   Local<Value> error(Exception::TypeError(String::New(msg)));
@@ -50,15 +48,14 @@ Handle<Value> callWithError(HandleScope &scope, Local<Function> &callback,
 }
 
 Handle<Value> aggregate(const Arguments &args) {
-  // TODO: use boost wrapper for scoped enums.
-  struct Args {
-    enum {
-      PIPELINE,
-      DOCUMENTS,
-      CALLBACK,
-      numArgs
-    };
-  };
+   struct Args {
+      enum {
+         PIPELINE,
+         DOCUMENTS,
+         CALLBACK,
+         numArgs
+      };
+   };
 
   HandleScope scope;
 
@@ -69,7 +66,6 @@ Handle<Value> aggregate(const Arguments &args) {
   }
 
   if (!args[Args::CALLBACK]->IsFunction()) {
-    // throw new ...
     ThrowException(
         Exception::TypeError(String::New("Third argument must be a callback")));
     return scope.Close(Undefined());
@@ -79,10 +75,6 @@ Handle<Value> aggregate(const Arguments &args) {
 
   if (!args[Args::PIPELINE]->IsArray()) {
     return callWithError(scope, callback, "BAD PIPELINE, MUST BE AN ARRAY!");
-    // Local<Value> error(Exception::TypeError(String::New("BAD PIPELINE, MUST
-    // BE AN ARRAY!")));
-    // callback->Call(Context::GetCurrent()->Global(), 1, &error);
-    // return scope.Close(Undefined());
   }
 
   if (!args[Args::DOCUMENTS]->IsArray()) {
@@ -96,56 +88,17 @@ Handle<Value> aggregate(const Arguments &args) {
   Handle<Array> v8Pipeline = Handle<Array>::Cast(args[0]);
   mongo::BSONArray pipeline(converter.v8ToMongo(v8Pipeline));
 
-  mongo::BSONObjBuilder bldr;
-  bldr.append("pipeline", pipeline);
-
-  mongo::BSONObj cmd(bldr.obj());
-
-  boost::intrusive_ptr<mongo::ExpressionContext> ctx =
-      new mongo::ExpressionContext(mongo::InterruptStatusNoop::status,
-                                   mongo::NamespaceString("mdb_conduit"));
-
   try {
-    std::string errmsg;
-    boost::intrusive_ptr<mongo::Pipeline> aggregator =
-        mongo::Pipeline::parseCommand(errmsg, cmd, ctx);
+     conduit::Pipeline conduit(pipeline);
 
-    if (!aggregator.get()) {
-      return callWithError(scope, callback, "Could not parse the pipeline.");
-    }
-
-    // These steps were pieced together from:
-    //  PipelineD::prepareCursorSource(aggregator, pCtx);
-
-    // TODO: I've skipped a bunch of steps like coalescing just to test this
-    // out, put them back in.
-
-    // TODO: make our own version of DocumentSourceBsonArray so we do not have
-    // to
-    // convert the entire array to BSON upfront, we can do it an element at
-    // time.
     Handle<Array> v8Input = Handle<Array>::Cast(args[1]);
 
     boost::intrusive_ptr<mongo::DocumentSourceV8> inputSrc(
-        mongo::DocumentSourceV8::create(v8Input, ctx));
-    aggregator->addInitialSource(inputSrc);
-
-    // Note: DocumentSourceOut and DocumentSourceGeoNear 'implement'
-    // DocumentSourceNeedsMongod
-    // So they are not allowed right now.  I haven't looked much at
-    // MongodImplementation but we can
-    // probably support at least Geo and maybe our own version of $out.
-
-    aggregator->stitch();
-
-    /*if (aggregator->isExplain()) {
-            result << "stages" << Value(aggregator->writeExplainOps());
-    return true; // don't do any actual execution
-    }*/
+        mongo::DocumentSourceV8::create(v8Input, conduit.getContext()));
 
     // Run w/o cursor (get all of the results at once).
     mongo::BSONObjBuilder result;
-    aggregator->run(result);
+    conduit(inputSrc, result);
 
     // TODO: use MongoToV8 to convert the results to javascript.
     //      Also try using JSON.parse() and compare the performance of the two
@@ -159,52 +112,96 @@ Handle<Value> aggregate(const Arguments &args) {
                                 Local<Value>::New(String::New(
                                     result.obj().jsonString().c_str())) };
 
-    callback->Call(Context::GetCurrent()->Global(), 2, results);
-    return scope.Close(Undefined());
-  }
-  catch (mongo::UserException &e) {
-    return callWithError(scope, callback, e.what());
-  }
+      callback->Call(Context::GetCurrent()->Global(), 2, results);
+      return scope.Close(Undefined());
+   }
+   catch (std::exception &e) {
+      return callWithError(scope, callback, e.what());
+   }
+}
 
-  // See db/commands/pipeline_command.cpp handleCursorCommand() and
-  // PipelineRunner
-  // for how to get result documents back as they are processed.
+Handle<Value> _conduit_main(const Arguments &args) {
 
-  /*
-                  //Async output.
-          boost::optional<BSONObj> getNextBson() {
-              if (boost::optional<Document> next =
-     _pipeline->output()->getNext()) {
-                  if (_includeMetaData) {
-                      return next->toBsonWithMetaData();
-                  }
-                  else {
-                      return next->toBson();
-                  }
-              }
+   struct Args {
+      enum {
+         ARGV,
+         ENV,
+         numArgs
+      };
+   };
 
-              return boost::none;
-          }
-  */
-  return scope.Close(String::New("{\"error\": \"should never get here.\"}"));
+  HandleScope scope;
+
+   if (args.Length() < Args::numArgs) {
+      scope.Close(Undefined());
+
+      ThrowException(
+         Exception::TypeError(String::New("_conduit_main(): Wrong number of arguments")));
+   }
+
+   if (!args[Args::ARGV]->IsArray()) {
+      scope.Close(Undefined());
+
+      ThrowException(
+         Exception::TypeError(String::New("_conduit_main(): Param 1, argv should be an array of strings.")));
+   }
+
+   if (!args[Args::ENV]->IsObject()) {
+      scope.Close(Undefined());
+
+      ThrowException(
+         Exception::TypeError(String::New("_conduit_main(): Param 2, env should be an object.")));
+   }
+
+   Local<Array> v8Argv(Local<Array>::Cast(args[Args::ARGV]));
+   int argc(v8Argv->Length());
+
+   //Setup parallel arrays.  The first will hold the data for the args, while
+   //the second will just point into that memory.
+   vector<vector<char>> argvHolder;
+   boost::scoped_array<char*> argv(new char*[argc]);
+
+   unsigned int i(0);
+   for (unsigned int length=v8Argv->Length(); i < length; ++i) {
+      String::Utf8Value buf(v8Argv->Get(i)->ToString());
+
+      argvHolder.push_back(vector<char>(*buf, *buf + buf.length() + 1));
+      argv[i] = &argvHolder[i][0];
+   }
+
+   //for(int idx(0); idx < argc; ++idx) {
+   //   cout << "Arg " << idx << ": " << argv[idx] << '\n';
+   //}
+
+   char** env(nullptr);
+   const int result(conduit::conduit_main(argc, argv.get(), env));
+
+   return scope.Close(Number::New(result));
 }
 
 void init(Handle<Object> exports) {
 
-  const int argc(0);
-  const char **argv(0), **envp(0);
+   int argc(0);
+   char** argv(nullptr), **env(nullptr);
 
-  mongo::Status status(mongo::runGlobalInitializers(argc, argv, envp));
-  if (!status.isOK()) {
-     //TODO: fix the missing logger global initializer that is causing this to fail.
-    /*std::stringstream msg;
-    msg << "Failed global initialization: " << status;
-    ThrowException(Exception::Error(String::New(msg.str().c_str())));
-    return;*/
-  }
+   mongo::Status status(conduit::intialize_module(argc, argv, env));
+   if (!status.isOK()) {
+      std::stringstream msg;
+      msg << "Failed initialization: " << status;
 
-  exports->Set(String::NewSymbol("aggregate"),
-               FunctionTemplate::New(aggregate)->GetFunction());
+      ThrowException(Exception::Error(String::New(msg.str().c_str())));
+      return;
+   }
+
+  exports->Set(
+      String::NewSymbol("aggregate"),
+      FunctionTemplate::New(aggregate)->GetFunction()
+   );
+
+   exports->Set(
+      String::NewSymbol("_conduit_main"),
+      FunctionTemplate::New(_conduit_main)->GetFunction()
+   );
 }
 
 //TODO: use context aware version.

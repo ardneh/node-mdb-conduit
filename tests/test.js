@@ -12,13 +12,6 @@ function compareResulDocs(expected, done, err, actual){
 
 describe("aggregate", function(){
 	describe("error handling", function(){
-		it("should require three arguments", function(done){
-			assert.throws(aggregate, TypeError);
-			assert.throws(aggregate, TypeError, []);
-			assert.throws(aggregate, TypeError, [], []);
-			assert.throws(aggregate, TypeError, [], [], done, []);
-			aggregate([], [], done);
-		});
 
 		it("the first argument must be an array", function(done) {
 			aggregate([], [], function(err) {
@@ -41,10 +34,7 @@ describe("aggregate", function(){
 		});
 
 		it("the third argument must be a callback", function(done) {
-			assert.throws(aggregate, TypeError, [], [], 4);
-			aggregate([], [], function(err) {
-				return done(err);
-			});
+			aggregate([], [], done);
 		});
 	});
 
